@@ -3,7 +3,6 @@ using Elsa.EntityFrameworkCore.Modules.Management;
 using Elsa.EntityFrameworkCore.Modules.Runtime;
 using Elsa.Extensions;
 using Elsa.Workflows.Runtime;
-using Elsa.Workflows.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -68,8 +67,8 @@ app.MapPost("/api/events/publish", async (HttpContext context, IEventPublisher e
         // Read the JSON body
         using var reader = new StreamReader(context.Request.Body);
         var body = await reader.ReadToEndAsync();
-        var eventRequest = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(body);
-
+        var eventRequest = JsonSerializer.Deserialize<JsonElement>(body);
+        
         var eventName = eventRequest.GetProperty("eventName").GetString();
         var correlationId = eventRequest.GetProperty("correlationId").GetString();
         var input = eventRequest.GetProperty("input");
@@ -81,8 +80,8 @@ app.MapPost("/api/events/publish", async (HttpContext context, IEventPublisher e
         {
             success = true,
             message = "Event published successfully",
-            eventName = eventName,
-            correlationId = correlationId
+            eventName,
+            correlationId
         });
     }
     catch (Exception ex)
