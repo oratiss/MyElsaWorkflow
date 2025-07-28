@@ -1,0 +1,143 @@
+{
+	"info": {
+		"_postman_id": "a66618fc-05d6-4b72-b113-1816dbb34793",
+		"name": "ElsaWorkflow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16142801",
+		"_collection_link": "https://solar-meteor-25072.postman.co/workspace/Tafahom~dbf0f179-763c-415a-8051-b4c771be622c/collection/16142801-a66618fc-05d6-4b72-b113-1816dbb34793?action=share&source=collection_link&creator=16142801"
+	},
+	"item": [
+		{
+			"name": "submit-user-request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Name\":\"Masoud\",\r\n    \"LastName\": \"Asgarian\",\r\n    \"NationalCode\": \"4113198905\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/workflows/submit-user-request",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"workflows",
+						"submit-user-request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:5001/api/workflows/orders",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"OrderId\": \"ORD-123-ABC\",\r\n  \"Customer\": \"John Doe\",\r\n  \"Amount\": 99.99\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/workflows/orders",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"workflows",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:5001/api/workflows/review-order",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"OrderId\": \"ORD-123-ABC\",\r\n  \"ReviewDecision\": {\r\n    \"Status\": \"Approved\",\r\n    \"ReviewedBy\": \"manager@example.com\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/workflows/review-order",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"workflows",
+						"review-order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CheckForeach",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/workflows/process-string-array",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"workflows",
+						"process-string-array"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "https://localhost:5001",
+			"type": "default"
+		}
+	]
+}
