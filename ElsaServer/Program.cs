@@ -3,11 +3,15 @@ using Elsa.EntityFrameworkCore.Modules.Management;
 using Elsa.EntityFrameworkCore.Modules.Runtime;
 using Elsa.Extensions;
 using Elsa.Workflows.Runtime;
+using ElsaServer;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseStaticWebAssets();
+
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var services = builder.Services;
 var configuration = builder.Configuration;
@@ -19,7 +23,10 @@ services
             identity.TokenOptions = options => options.SigningKey = "large-signing-key-for-signing-JWT-tokens";
             identity.UseAdminUserProvider();
         })
-        .UseDefaultAuthentication()
+        .UseDefaultAuthentication(a => 
+        {
+            a.UseApiKeyAuthorization<MasoudApiKeyProvider>();
+        })
         .UseWorkflowManagement(management =>
         {
             management.UseEntityFrameworkCore(ef => ef.UseSqlite());
@@ -36,6 +43,9 @@ services
         .UseWorkflowsApi()
         .AddActivitiesFrom<Program>()
         .AddWorkflowsFrom<Program>()
+        .UseWebhooks(webhooks => webhooks.ConfigureSinks += options =>
+                                                            builder.Configuration.GetSection("webhooks")
+                                                            .Bind(options))
     );
 
 services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("*")));
@@ -68,7 +78,7 @@ app.MapPost("/api/events/publish", async (HttpContext context, IEventPublisher e
         using var reader = new StreamReader(context.Request.Body);
         var body = await reader.ReadToEndAsync();
         var eventRequest = JsonSerializer.Deserialize<JsonElement>(body);
-        
+
         var eventName = eventRequest.GetProperty("eventName").GetString();
         var correlationId = eventRequest.GetProperty("correlationId").GetString();
         var input = eventRequest.GetProperty("input");
