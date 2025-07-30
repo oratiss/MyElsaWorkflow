@@ -11,7 +11,7 @@ namespace TaskManagementApplication.Controllers;
 public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaClient, ILogger<HomeController> logger) : Controller
 {
 
-
+    [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var tasks = await dbContext.OnBoardingTasks.Where(x => !x.IsCompleted).ToListAsync(cancellationToken: cancellationToken);
@@ -19,7 +19,9 @@ public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaC
         return View(model);
     }
 
-    public async Task<IActionResult> CompeleteTask(int taskId, CancellationToken cancellationToken)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CompleteTask(int taskId, CancellationToken cancellationToken)
     {
         var task = dbContext.OnBoardingTasks.FirstOrDefault(x => x.Id == taskId);
 
@@ -36,6 +38,7 @@ public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaC
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
     public IActionResult Privacy()
     {
         return View();

@@ -17,35 +17,34 @@ var services = builder.Services;
 var configuration = builder.Configuration;
 
 services
-    .AddElsa(elsa => elsa
-        .UseIdentity(identity =>
-        {
-            identity.TokenOptions = options => options.SigningKey = "large-signing-key-for-signing-JWT-tokens";
-            identity.UseAdminUserProvider();
-        })
-        .UseDefaultAuthentication(a => 
-        {
-            a.UseApiKeyAuthorization<MasoudApiKeyProvider>();
-        })
-        .UseWorkflowManagement(management =>
-        {
-            management.UseEntityFrameworkCore(ef => ef.UseSqlite());
+.AddElsa(elsa => elsa
+    .UseIdentity(identity =>
+    {
+        identity.TokenOptions = options => options.SigningKey = "large-signing-key-for-signing-JWT-tokens";
+        identity.UseAdminUserProvider();
+    })
+    .UseDefaultAuthentication(a =>
+    {
+        //added by pejamn:
+        a.UseApiKeyAuthorization<TafahomApiKeyProvider>();
+    })
+    .UseWorkflowManagement(management =>
+    {
+        management.UseEntityFrameworkCore(ef => ef.UseSqlite());
 
-            //added by asgarian:
-            management.SetDefaultLogPersistenceMode(Elsa.Workflows.LogPersistence.LogPersistenceMode.Include);
-        })
-        .UseWorkflowRuntime(runtime => runtime.UseEntityFrameworkCore(ef => ef.UseSqlite()))
-        .UseScheduling()
-        .UseJavaScript()
-        .UseLiquid()
-        .UseCSharp()
-        .UseHttp(http => http.ConfigureHttpOptions = options => configuration.GetSection("Http").Bind(options))
-        .UseWorkflowsApi()
-        .AddActivitiesFrom<Program>()
-        .AddWorkflowsFrom<Program>()
-        .UseWebhooks(webhooks => webhooks.ConfigureSinks += options =>
-                                                            builder.Configuration.GetSection("webhooks")
-                                                            .Bind(options))
+        //added by asgarian:
+        management.SetDefaultLogPersistenceMode(Elsa.Workflows.LogPersistence.LogPersistenceMode.Include);
+    })
+    .UseWorkflowRuntime(runtime => runtime.UseEntityFrameworkCore(ef => ef.UseSqlite()))
+    .UseScheduling()
+    .UseJavaScript()
+    .UseLiquid()
+    .UseCSharp()
+    .UseHttp(http => http.ConfigureHttpOptions = options => configuration.GetSection("Http").Bind(options))
+    .UseWorkflowsApi()
+    .AddActivitiesFrom<Program>()
+    .AddWorkflowsFrom<Program>()
+    .UseWebhooks(webhooks => webhooks.ConfigureSinks += options => builder.Configuration.GetSection("webhooks").Bind(options))
     );
 
 services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("*")));
@@ -103,6 +102,5 @@ app.MapPost("/api/events/publish", async (HttpContext context, IEventPublisher e
         });
     }
 });
-
 
 app.Run();

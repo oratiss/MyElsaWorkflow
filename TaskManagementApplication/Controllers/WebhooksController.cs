@@ -13,7 +13,7 @@ namespace TaskManagementApplication.Controllers
         public async Task<IActionResult> RunTask(WebhookEvent webhookEvent)
         {
             if (webhookEvent is null)
-                return Ok();
+                return BadRequest();
 
             var payload = webhookEvent.Payload;
             var taskPayload = payload.TaskPayload;
@@ -27,7 +27,7 @@ namespace TaskManagementApplication.Controllers
                 Description = taskPayload.Description,
                 EmployeeEmail = employee.Email,
                 EmployeeName = employee.Name,
-                CreatedAt = DateTimeOffset.Now
+                CreatedAt = DateTimeOffset.UtcNow
             };
 
             await dbContext.OnBoardingTasks.AddAsync(task);
