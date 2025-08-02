@@ -10,6 +10,7 @@
     <PackageReference Include="Elsa.JavaScript" Version="3.4.2" />
     <PackageReference Include="Elsa.Liquid" Version="3.4.2" />
     <PackageReference Include="Elsa.Scheduling" Version="3.4.2" />
+    <PackageReference Include="Elsa.Webhooks" Version="3.4.2" />
     <PackageReference Include="Elsa.Workflows.Api" Version="3.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
