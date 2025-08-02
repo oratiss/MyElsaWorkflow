@@ -6,8 +6,12 @@ using TaskManagementApplication.Services;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
+//builder.Services.AddDbContext<TaskManagementDbContext>(options =>
+//    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddDbContext<TaskManagementDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ElsaSQlServer"), 
+    sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
 
 builder.Services.AddHttpClient<ElsaClient>("elsaHttpClient", httpClient =>
 {
