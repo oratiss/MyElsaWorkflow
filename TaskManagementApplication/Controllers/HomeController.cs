@@ -21,13 +21,13 @@ public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaC
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CompleteTask(int taskId, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteTask(int taskId, string nextActivityId, CancellationToken cancellationToken)
     {
         var task = dbContext.OnBoardingTasks.FirstOrDefault(x => x.Id == taskId);
 
         if (task is null) return NotFound();
 
-        await elsaClient.ReportTaskCompletedAsync(task.ExternalId, cancellationToken: cancellationToken);
+        await elsaClient.ReportTaskCompletedAsync(task.ExternalId, nextActivityId, cancellationToken: cancellationToken);
 
         task.IsCompleted = true;
         task.CompletedAt = DateTimeOffset.Now;
