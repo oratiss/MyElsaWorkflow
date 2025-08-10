@@ -2,9 +2,11 @@
 
   <ItemGroup>
     <PackageReference Include="Elsa" Version="3.4.2" />
+    <PackageReference Include="Elsa.Alterations" Version="3.4.2" />
     <PackageReference Include="Elsa.CSharp" Version="3.4.2" />
     <PackageReference Include="Elsa.EntityFrameworkCore" Version="3.4.2" />
     <PackageReference Include="Elsa.EntityFrameworkCore.Sqlite" Version="3.4.2" />
+    <PackageReference Include="Elsa.EntityFrameworkCore.SqlServer" Version="3.4.2" />
     <PackageReference Include="Elsa.Http" Version="3.4.2" />
     <PackageReference Include="Elsa.Identity" Version="3.4.2" />
     <PackageReference Include="Elsa.JavaScript" Version="3.4.2" />
@@ -13,6 +15,14 @@
     <PackageReference Include="Elsa.Webhooks" Version="3.4.2" />
     <PackageReference Include="Elsa.Workflows.Api" Version="3.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
   </ItemGroup>
 

@@ -14,6 +14,7 @@ namespace ElsaServer.Workflows
             {
                 Activities =
                 {
+                    new Start(),
                     new SetVariable
                     {
                         Variable = employee,
@@ -21,10 +22,10 @@ namespace ElsaServer.Workflows
                     },
                     new RunTask("Create Email Account")
                     {
-                        Payload = new (context=> new Dictionary<string, object>
+                        Payload = new (context => new Dictionary<string, object>
                         {
                             ["Employee"] = employee.Get(context)!,
-                            ["Description"] = "Create an email account for the new employee."
+                            ["Description"] = "Create an email account for the new employee.",
                         })
                     },
                     new Elsa.Workflows.Activities.Parallel

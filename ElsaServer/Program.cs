@@ -30,12 +30,18 @@ services
     })
     .UseWorkflowManagement(management =>
     {
-        management.UseEntityFrameworkCore(ef => ef.UseSqlite());
+        //management.UseEntityFrameworkCore(ef => ef.UseSqlite());
+        var connectionString = builder.Configuration.GetConnectionString("ElsaSQlServer")!;
+        management.UseEntityFrameworkCore(ef => ef.UseSqlServer(connectionString));
 
         //added by asgarian:
         management.SetDefaultLogPersistenceMode(Elsa.Workflows.LogPersistence.LogPersistenceMode.Include);
     })
-    .UseWorkflowRuntime(runtime => runtime.UseEntityFrameworkCore(ef => ef.UseSqlite()))
+    .UseWorkflowRuntime(runtime => {
+        //runtime.UseEntityFrameworkCore(ef => ef.UseSqlite());
+        var connectionString = builder.Configuration.GetConnectionString("ElsaSQlServer")!;
+        runtime.UseEntityFrameworkCore(ef => ef.UseSqlServer(connectionString));
+    })
     .UseScheduling()
     .UseJavaScript()
     .UseLiquid()

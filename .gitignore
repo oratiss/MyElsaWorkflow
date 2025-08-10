@@ -290,3 +290,9 @@ __pycache__/
 *.xsd.cs
 /1871971552314393235791778221016723814818930858.ico
 /desktop.ini
+/ElsaServer/elsa.sqlite.db
+/ElsaServer/elsa.sqlite.db-shm
+/ElsaServer/elsa.sqlite.db-wal
+/TaskManagementApplication/taskmanagement.db
+/TaskManagementApplication/taskmanagement.db-shm
+/TaskManagementApplication/taskmanagement.db-wal
