@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="Elsa" Version="3.4.2" />
+    <PackageReference Include="Elsa.Alterations" Version="3.4.2" />
     <PackageReference Include="Elsa.CSharp" Version="3.4.2" />
     <PackageReference Include="Elsa.EntityFrameworkCore" Version="3.4.2" />
     <PackageReference Include="Elsa.EntityFrameworkCore.Sqlite" Version="3.4.2" />

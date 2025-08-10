@@ -25,7 +25,7 @@ namespace ElsaServer.Workflows
                         Payload = new (context => new Dictionary<string, object>
                         {
                             ["Employee"] = employee.Get(context)!,
-                            ["Description"] = "Create an email account for the new employee."
+                            ["Description"] = "Create an email account for the new employee.",
                         })
                     },
                     new Elsa.Workflows.Activities.Parallel

@@ -21,6 +21,7 @@ namespace TaskManagementApplication.Data
                 entity.Property(x => x.Description).HasMaxLength(1000);
                 entity.Property(x => x.EmployeeName).HasMaxLength(200);
                 entity.Property(x => x.EmployeeEmail).HasMaxLength(250);
+                entity.Property(x => x.Result).HasMaxLength(30000);
             });
         }
     }

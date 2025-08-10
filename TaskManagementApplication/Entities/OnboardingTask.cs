@@ -54,5 +54,10 @@
         /// The date and time when the task was completed.
         /// </summary>
         public DateTimeOffset? CompletedAt { get; set; }
+
+        /// <summary>
+        /// The possible outcome called Result we expect to keep in current task
+        /// </summary>
+        public string? Result { get; set; }
     }
 }

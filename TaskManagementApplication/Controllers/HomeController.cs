@@ -1,6 +1,9 @@
+using Elsa.Expressions.Models;
+using Elsa.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using TaskManagementApplication.ApiModels;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Models;
 using TaskManagementApplication.Services;
@@ -15,19 +18,21 @@ public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaC
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var tasks = await dbContext.OnBoardingTasks.Where(x => !x.IsCompleted).ToListAsync(cancellationToken: cancellationToken);
-        var model = new IndexViewModel(tasks);
+        var model = new IndexViewModel  (tasks);
         return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CompleteTask(int taskId, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteTask(CompleteTaskRequest request, CancellationToken cancellationToken)
     {
-        var task = dbContext.OnBoardingTasks.FirstOrDefault(x => x.Id == taskId);
+        var task = dbContext.OnBoardingTasks.FirstOrDefault(x => x.Id == request.TaskId);
+        
+                if (task is null) return NotFound();
 
-        if (task is null) return NotFound();
+        var result = request.Result ?? task.Result; // 
 
-        await elsaClient.ReportTaskCompletedAsync(task.ExternalId, cancellationToken: cancellationToken);
+        await elsaClient.ReportTaskCompletedAsync(task.ExternalId, result, request.NextActivityId, cancellationToken);
 
         task.IsCompleted = true;
         task.CompletedAt = DateTimeOffset.Now;
