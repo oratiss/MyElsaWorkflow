@@ -31,6 +31,18 @@
             await httpclient.PostAsJsonAsync(url, request, cancellationToken);
         }
 
+        public async Task ReportStepCompletedAsync(string taskId, object? result = default, string? nextActivityId = null, CancellationToken cancellationToken = default)
+        {
+            var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
+            var url = new Uri($"tasks/{taskId}/complete", UriKind.Relative);
+            var request = new
+            {
+                Result = result,
+                NextActivityId = nextActivityId
+            };
+            await httpclient.PostAsJsonAsync(url, request, cancellationToken);
+        }
+
 
     }
 }

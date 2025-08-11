@@ -1,65 +1,55 @@
 ﻿namespace TaskManagementApplication.Entities
 {
-    /// <summary>
-    /// A task that needs to be completed by the user.
-    /// </summary>
-    public class OnboardingTask
+    public class Step
     {
         /// <summary>
-        /// The ID of the task.
+        /// The ID of the Step.
         /// </summary>
         public long Id { get; set; }
 
         /// <summary>
-        /// An external ID that can be used to reference the task.
+        /// An external ID that can be used to reference the Step.
         /// </summary>
         public string ExternalId { get; set; } = default!;
 
         /// <summary>
-        /// The ID of the onboarding process that the task belongs to.
+        /// The ID of the onboarding process that the Step belongs to.
         /// </summary>
         public string ProcessId { get; set; } = default!;
 
         /// <summary>
-        /// The name of the task.
+        /// The name of the Step.
         /// </summary>
         public string Name { get; set; } = default!;
 
         /// <summary>
-        /// The task description.
+        /// The Step description.
         /// </summary>
         public string Description { get; set; } = default!;
 
-        /// <summary>
-        /// The name of the employee being onboarded.
-        /// </summary>
-        public string EmployeeName { get; set; } = default!;
 
         /// <summary>
-        /// The email address of the employee being onboarded.
-        /// </summary>
-        public string EmployeeEmail { get; set; } = default!;
-
-        /// <summary>
-        /// Whether the task has been completed.
+        /// Whether the Step has been completed.
         /// </summary>
         public bool IsCompleted { get; set; }
 
         /// <summary>
-        /// The date and time when the task was created.
+        /// The date and time when the Step was created.
         /// </summary>
         public DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
-        /// The date and time when the task was completed.
+        /// The date and time when the Step was completed.
         /// </summary>
         public DateTimeOffset? CompletedAt { get; set; }
 
         /// <summary>
-        /// The possible outcome called Result we expect to keep in current task
+        /// The possible outcome called Result we expect to keep in current Step
         /// </summary>
         public string? Result { get; set; }
 
         public string? NextActivityId { get; set; }
+        
+        public string UserWorkflowConfigSerialized { get; set; } = null!;
     }
 }

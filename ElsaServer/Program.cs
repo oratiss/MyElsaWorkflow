@@ -16,6 +16,8 @@ builder.Logging.SetMinimumLevel(LogLevel.Debug);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
+services.AddScoped<IRtsActivityFinder, RtsActivityFinder>();
+
 services
 .AddElsa(elsa => elsa
     .UseIdentity(identity =>

@@ -10,6 +10,7 @@ namespace ElsaServer.Workflows
         protected override void Build(IWorkflowBuilder builder)
         {
             var employee = builder.WithVariable<object>();
+
             builder.Root = new Sequence
             {
                 Activities =

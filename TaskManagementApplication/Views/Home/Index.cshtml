@@ -4,34 +4,35 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Tasks</h1>
-    <p>Please complete the following onboarding tasks.</p>
+    <h1 class="display-4">Steps</h1>
+    <p>Please complete the following onboarding steps.</p>
 </div>
 
 <div class="container">
     <table class="table table-bordered table-hover">
         <thead class="table-light">
             <tr>
-                <th scope="col">Task ID</th>
+                <th scope="col">Step ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Description</th>
-                <th scope="col">Employee</th>
+                <th scope="col">UserWorkflowConfig</th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var task in Model.OnboardingTasks)
+            @foreach (var step in Model.Steps)
             {
                 <tr>
 
-                    <th scope="row">@task.Id</th>
-                    <td>@task.Name</td>
-                    <td>@task.Description</td>
-                    <td>@($"{task.EmployeeName} <{task.EmployeeEmail}>")</td>
+                    <th scope="row">@step.Id</th>
+                    <td>@step.Name</td>
+                    <td>@step.Description</td>
+                    <td>@($"{step.UserWorkflowConfigSerialized}")</td>
                     <td>
-                        <form asp-action="CompleteTask">
-                            <input type="hidden" name="TaskId" value="@task.Id" />
-                            <button type="submit" class="btn btn-primary">Complete</button>
+                        <form asp-action="CompleteStep">
+                            <input type="hidden" name="StepId" value="@step.Id" />
+                            <input type="hidden" name="NextActivityId" value="@step.NextActivityId" />
+                            <button type="submit" class="btn btn-primary">Complete Step</button>
                         </form>
                     </td>
                 </tr>

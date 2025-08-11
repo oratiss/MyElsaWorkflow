@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Entities;
 
@@ -31,6 +32,44 @@ namespace TaskManagementApplication.Controllers
             };
 
             await dbContext.OnBoardingTasks.AddAsync(task);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPost("step")]
+        public async Task<IActionResult> Step(StepWebhookEvent stepWebhookEvent)
+        {
+            if (stepWebhookEvent is null)
+                return BadRequest();
+
+            var payload = stepWebhookEvent.Payload;
+            var stepPayload = payload.StepPayload;
+            var userWorkflowConfig = stepPayload.UserWorkflowConfig;
+            var firstActivityConfig = userWorkflowConfig.FirstActivityConfig;
+            var currentPerformerGroup = firstActivityConfig.CurrentPerformerGroup;
+            var currentPerformerUser = firstActivityConfig.CurrentPerformerUser;
+
+            var UserWorkflowConfig  = new UserActivityConfig(
+               new PerformerGroup(currentPerformerGroup.Id, currentPerformerGroup.Name),
+               new User(currentPerformerUser.Id, currentPerformerUser.FirstName, currentPerformerUser.LastName),
+               firstActivityConfig.RequiredFields,
+               firstActivityConfig.Decision,
+               firstActivityConfig.NextActivityId
+                );
+
+            var step = new Step
+            {
+                ProcessId = payload.WorkflowInstanceId,
+                ExternalId = payload.TaskId,
+                Name = payload.TaskName,
+                Description = stepPayload.Description,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UserWorkflowConfigSerialized = JsonSerializer.Serialize(UserWorkflowConfig)
+            };
+
+
+            await dbContext.Steps.AddAsync(step);
             await dbContext.SaveChangesAsync();
 
             return Ok();

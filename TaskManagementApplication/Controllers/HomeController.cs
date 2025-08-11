@@ -1,5 +1,3 @@
-using Elsa.Expressions.Models;
-using Elsa.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -13,31 +11,73 @@ namespace TaskManagementApplication.Controllers;
 
 public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaClient, ILogger<HomeController> logger) : Controller
 {
+    #region Commented
+    //[HttpGet]
+    //public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    //{
+    //    var tasks = await dbContext.OnBoardingTasks.Where(x => !x.IsCompleted).ToListAsync(cancellationToken: cancellationToken);
+    //    var model = new IndexViewModel  (tasks);
+    //    return View(model);
+    //}
+
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> CompleteTask(CompleteTaskRequest request, CancellationToken cancellationToken)
+    //{
+    //    var task = dbContext.OnBoardingTasks.FirstOrDefault(x => x.Id == request.TaskId);
+
+    //            if (task is null) return NotFound();
+
+    //    var result = request.Result ?? task.Result; // 
+
+    //    await elsaClient.ReportTaskCompletedAsync(task.ExternalId, result, request.NextActivityId, cancellationToken);
+
+    //    task.IsCompleted = true;
+    //    task.CompletedAt = DateTimeOffset.Now;
+
+    //    dbContext.OnBoardingTasks.Update(task);
+    //    await dbContext.SaveChangesAsync(cancellationToken);
+
+    //    return RedirectToAction("Index");
+    //}
+
+    //[HttpGet]
+    //public IActionResult Privacy()
+    //{
+    //    return View();
+    //}
+
+    //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    //public IActionResult Error()
+    //{
+    //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    //}
+    #endregion
 
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var tasks = await dbContext.OnBoardingTasks.Where(x => !x.IsCompleted).ToListAsync(cancellationToken: cancellationToken);
-        var model = new IndexViewModel  (tasks);
+        var steps = await dbContext.Steps.Where(x => !x.IsCompleted).ToListAsync(cancellationToken: cancellationToken);
+        var model = new IndexViewModel(steps);
         return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CompleteTask(CompleteTaskRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteStep(CompleteStepRequest request, CancellationToken cancellationToken)
     {
-        var task = dbContext.OnBoardingTasks.FirstOrDefault(x => x.Id == request.TaskId);
-        
-                if (task is null) return NotFound();
+        var step = dbContext.Steps.FirstOrDefault(x => x.Id == request.StepId);
 
-        var result = request.Result ?? task.Result; // 
+        if (step is null) return NotFound();
 
-        await elsaClient.ReportTaskCompletedAsync(task.ExternalId, result, request.NextActivityId, cancellationToken);
+        var result = request.Result ?? step.Result; // 
 
-        task.IsCompleted = true;
-        task.CompletedAt = DateTimeOffset.Now;
+        await elsaClient.ReportStepCompletedAsync(step.ExternalId, result, request.NextActivityId, cancellationToken);
 
-        dbContext.OnBoardingTasks.Update(task);
+        step.IsCompleted = true;
+        step.CompletedAt = DateTimeOffset.Now;
+
+        dbContext.Steps.Update(step);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction("Index");
@@ -57,3 +97,4 @@ public class HomeController(TaskManagementDbContext dbContext, IElsaClient elsaC
 
 
 }
+

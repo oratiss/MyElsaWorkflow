@@ -1,6 +1,8 @@
 ﻿using Elsa.Expressions.Models;
+using Elsa.Workflows.Models;
 using Elsa.Workflows.Runtime.Activities;
 using ElsaServer.Models;
+using Humanizer;
 using System.Runtime.CompilerServices;
 
 namespace ElsaServer.Activities
@@ -8,11 +10,12 @@ namespace ElsaServer.Activities
     public class Step : RunTask
     {
         public Step(
-            long toEntityStateId,
+            long performerUserId,
             PerformerGroup activePerformerGroup,
-            Dictionary<string, object> requiredFields,
-            Dictionary<Step, PerformerGroup> nextPossibleSteps,
+            Input<List<RequiredField>> requiredFields,
+            Input<List<string>> nextPossibleActivityIds,
             MemoryBlockReference output,
+            long? ToEntityStateId = null,
             [CallerFilePath] string? source = null,
             [CallerLineNumber] int? line = null,
             string? description = null) : base(output, source, line)
@@ -20,11 +23,12 @@ namespace ElsaServer.Activities
         }
 
         public Step(
-            long toEntityStateId,
+            long performerUserId,
             PerformerGroup activePerformerGroup,
-            Dictionary<string, object> requiredFields,
-            Dictionary<Step, PerformerGroup> nextPossibleSteps,
+            Input<List<RequiredField>> requiredFields,
+            Input<List<string>> nextPossibleActivityIds,
             string taskName,
+            long? ToEntityStateId = null,
             [CallerFilePath] string? source = null,
             [CallerLineNumber] int? line = null,
             string? description = null) : base(taskName, source, line)
@@ -34,19 +38,21 @@ namespace ElsaServer.Activities
         public Step(string taskName,
             [CallerFilePath] string? source = null,
             [CallerLineNumber] int? line = null,
-            string? description = null):base(taskName, source, line) 
+            string? description = null) : base(taskName, source, line)
         {
-            
+
         }
 
         public PerformerGroup performerGroup { get; set; } = null!;
 
-        public Dictionary<Step, PerformerGroup> NextPossibleSteps { get; set; } = null!;
+        public long PerformerUserId { get; set; }
 
-        public Dictionary<string, object> RequiredFields { get; set; } = null!;
+        public Input<List<string>> NextPossibleActivityIds { get; set; } = null!;
+
+        public Input<List<RequiredField>> RequiredFields { get; set; } = null!;
 
         public string? Description { get; set; } = null;
 
-        public long ToEntityStateId { get; set; }
+        public long? ToEntityStateId { get; set; }
     }
 }

@@ -50,7 +50,7 @@ namespace YourElsaServer.Controllers
                 _logger.LogInformation($"Completing task {taskId} with NextActivityId: {request.NextActivityId}");
 
                 // Find the workflow instance by taskId using bookmarks table
-                var workflowInstance = await FindWorkflowByTaskId(taskId, cancellationToken);
+                var workflowInstance = await FindWorkflowInstanceByTaskId(taskId, cancellationToken);
                 if (workflowInstance is null)
                 {
                     return NotFound($"Task {taskId} not found");
@@ -96,7 +96,7 @@ namespace YourElsaServer.Controllers
             }
         }
 
-        private async Task<WorkflowInstance?> FindWorkflowByTaskId(string taskId, CancellationToken cancellationToken)
+        private async Task<WorkflowInstance?> FindWorkflowInstanceByTaskId(string taskId, CancellationToken cancellationToken)
         {
             // Query bookmarks table using SQL Server JSON_VALUE to find bookmark with taskId
             //var sql = @"
