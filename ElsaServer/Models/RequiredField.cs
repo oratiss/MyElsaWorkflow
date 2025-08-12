@@ -7,10 +7,11 @@
         
         private object? _value;
 
-        public RequiredField(string name, Type type)
+        public RequiredField(string name, Type type, object? value = null)
         {
             Name = name;
             Type = type;
+            _value = value;
         }
 
         public T? GetValue<T>() => (T?)_value;
