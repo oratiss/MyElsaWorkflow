@@ -24,6 +24,8 @@ namespace ElsaServer.Workflows
 
             var currentPerformerGroup = builder.WithVariable<PerformerGroup>();
 
+            var previousRunTasKResultAsInput = builder.WithVariable<Dictionary<string, object>>();
+
 
             builder.Root = new Flowchart
             {
@@ -49,6 +51,15 @@ namespace ElsaServer.Workflows
                         Value = new (context=> userWorkflowConfig.Get(context)?.FirstActivityConfig.CurrentPerformerGroup)
                     },
 
+                    //Todo: find a way to set  this variable 
+                    new SetVariable
+                    {
+                        Variable = workflowState,
+                        Value = new (context =>
+                        {
+                            return BankGuaranteeState.Created;
+                        })
+                    },
                     //for none standard workflows, first step should assign it values from variables defined above. Those variables can be assigned with input.
                     new Step(
                                 (long)performerUserId.Value!,
@@ -79,12 +90,10 @@ namespace ElsaServer.Workflows
 
                     new SetVariable
                     {
-                        Variable = workflowState,
-                        Value = new (context =>
-                        {
-                            return BankGuaranteeState.Created;
-                        })
+                        Variable = previousRunTasKResultAsInput,
+                        Value = new (context => context.GetInput<Dictionary<string, object>>("Result"))
                     },
+
 
                     new End()
 
