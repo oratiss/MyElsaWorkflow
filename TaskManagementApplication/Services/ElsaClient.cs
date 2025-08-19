@@ -1,4 +1,11 @@
-﻿namespace TaskManagementApplication.Services
+﻿using Elsa.Expressions.Models;
+using Rts.Common;
+using System.Threading;
+using System.Threading.Tasks;
+
+using TaskManagementApplication.Services.Models;
+
+namespace TaskManagementApplication.Services
 {
     /// <summary>
     /// A client for the Elsa API.
@@ -18,27 +25,19 @@
             var request = new { Result = result };
             await httpclient.PostAsJsonAsync(url, request, cancellationToken);
         }
-
-        public async Task ReportTaskCompletedAsync(string taskId, object? result = default, string? nextActivityId = null, CancellationToken cancellationToken = default)
+        
+        /// <summary>
+        /// Runs a workflow with new Instance in Elsa
+        /// </summary>
+        /// <param name="workflowDefinitionId"></param>
+        /// <returns></returns>
+        public async Task RunWorkflowAsync(string workflowDefinitionId, UserWorkflowConfig workflowConfig, CancellationToken cancellationToken = default)
         {
             var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
-            var url = new Uri($"tasks/{taskId}/complete", UriKind.Relative);
-            var request = new
+            var url = new Uri($"workflow-definitions/{workflowDefinitionId}/execute", UriKind.Relative);
+            object request = new Request<object>()
             {
-                Result = result,
-                NextActivityId = nextActivityId
-            };
-            await httpclient.PostAsJsonAsync(url, request, cancellationToken);
-        }
-
-        public async Task ReportStepCompletedAsync(string taskId, object? result = default, string? nextActivityId = null, CancellationToken cancellationToken = default)
-        {
-            var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
-            var url = new Uri($"tasks/{taskId}/complete", UriKind.Relative);
-            var request = new
-            {
-                Result = result,
-                NextActivityId = nextActivityId
+                Input = workflowConfig
             };
             await httpclient.PostAsJsonAsync(url, request, cancellationToken);
         }

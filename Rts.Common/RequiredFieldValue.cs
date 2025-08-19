@@ -1,13 +1,13 @@
-﻿namespace ElsaServer.Models
+﻿namespace Rts.Common
 {
-    public class RequiredField
+    public class RequiredFieldValue
     {
         public string Name { get; set; } = string.Empty;
         public Type Type { get; private set; }
         
         private object? _value;
 
-        public RequiredField(string name, Type type, object? value = null)
+        public RequiredFieldValue(string name, Type type, object? value = null)
         {
             Name = name;
             Type = type;

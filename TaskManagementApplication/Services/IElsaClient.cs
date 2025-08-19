@@ -1,10 +1,13 @@
 ﻿
+using Rts.Common;
+
 namespace TaskManagementApplication.Services
 {
     public interface IElsaClient
     {
         Task ReportTaskCompletedAsync(string taskId, object? result = null, CancellationToken cancellationToken = default);
-        Task ReportTaskCompletedAsync(string taskId, object? result = default, string? nextActivityId = null, CancellationToken cancellationToken = default);
-        Task ReportStepCompletedAsync(string taskId, object? result = default, string? nextActivityId = null, CancellationToken cancellationToken = default);
+
+        Task RunWorkflowAsync(string workflowDefinitionId, UserWorkflowConfig workflowConfig, CancellationToken cancellationToken = default);
+
     }
 }

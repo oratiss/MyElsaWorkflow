@@ -6,7 +6,7 @@ using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
 using ElsaServer.Activities;
-using ElsaServer.Models;
+using Rts.Common;
 
 namespace ElsaServer.Workflows
 {
@@ -35,8 +35,7 @@ namespace ElsaServer.Workflows
                     new Step(
                         1,
                         activePerformerGroup: new PerformerGroup(1, "BankguaranteeCreators"),
-                        requiredFields:  new Input<List<RequiredField>>(context => userWorkflowConfig.Get(context)?.FirstActivityConfig?.RequiredFields!),
-                        nextPossibleActivityIds: new Input<List<string>>(context => new List<string> { userWorkflowConfig.Get(context)?.FirstActivityConfig.NextActivityId!}),
+                        requiredFieldValues:  new Input<List<RequiredFieldValue>>(context => userWorkflowConfig.Get(context)?.FirstActivityConfig?.RequiredFieldValues!),
                         taskName: "Create Bank Guarantee"
                     )
                     {
@@ -64,7 +63,7 @@ namespace ElsaServer.Workflows
         {
             var workflowConfig = builder.WithVariable("someWorkflowConfig", new UserWorkflowConfig
             {
-                PerformerGroups = GetPerformerGroups(builder).Value.ConvertTo<List<PerformerGroup>>(),
+                AssignableUserGroups = GetPerformerGroups(builder).Value.ConvertTo<List<PerformerGroup>>()!,
                 FirstActivityConfig = GetUserActivityConfig(builder).Value.ConvertTo<UserActivityConfig>()!
             });
             return workflowConfig;
@@ -85,28 +84,26 @@ namespace ElsaServer.Workflows
         protected virtual Variable<UserActivityConfig> GetUserActivityConfig(IWorkflowBuilder builder)
         {
             var userActivityConfig = builder.WithVariable("userActivityConfig", new UserActivityConfig
-            {
-                CurrentPerformerGroup = new PerformerGroup(1, "Everyone"),
-                CurrentPerformerUser = new User(1, "Masoud", "Asgarian"),
-                Decision = null,
-                NextActivityId = "2",
-                RequiredFields = GetrEquiredFields(builder).Value.ConvertTo<List<RequiredField>>()
-            });
+            (
+                new PerformerGroup(1, "Everyone"),
+                new User(1, "Masoud", "Asgarian"),
+                GetrEquiredFields(builder).Value.ConvertTo<List<RequiredFieldValue>>()
+            ));
             return userActivityConfig;
         }
 
-        protected virtual Variable<RequiredField[]> GetrEquiredFields(IWorkflowBuilder builder)
+        protected virtual Variable<RequiredFieldValue[]> GetrEquiredFields(IWorkflowBuilder builder)
         {
-            var title = new RequiredField("Title", typeof(string));
+            var title = new RequiredFieldValue("Title", typeof(string));
             title.SetValue("Standard Bank Guarantee Title");
 
-            var amount = new RequiredField("Amount", typeof(decimal));
+            var amount = new RequiredFieldValue("Amount", typeof(decimal));
             amount.SetValue((decimal)10_000_000_000);
 
-            var amountCurrency = new RequiredField("AmountCurrency", typeof(string));
+            var amountCurrency = new RequiredFieldValue("AmountCurrency", typeof(string));
             amountCurrency.SetValue("IRR");
 
-            var requiredFileds = builder.WithVariable("requiredFileds", new RequiredField[]
+            var requiredFileds = builder.WithVariable("requiredFileds", new RequiredFieldValue[]
             {
                 title,
                 amount,

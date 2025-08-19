@@ -10,6 +10,10 @@ namespace TaskManagementApplication.Data
 
         public DbSet<Step> Steps { get; set; } = default!;
 
+        public DbSet<Workflow> Workflows { get; set; } = default!;
+
+        public DbSet<WorkflowEntities> WorkflowEntities { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

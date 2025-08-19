@@ -5,8 +5,7 @@ using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
 using ElsaServer.Activities;
-using ElsaServer.Models;
-using Polly;
+using Rts.Common;
 
 namespace ElsaServer.Workflows
 {
@@ -64,17 +63,7 @@ namespace ElsaServer.Workflows
                     new Step(
                                 (long)performerUserId.Value!,
                                 activePerformerGroup: (PerformerGroup)currentPerformerGroup.Value!,
-                                requiredFields:  new Input<List<RequiredField>>(context => userWorkflowConfig.Get(context)?.FirstActivityConfig?.RequiredFields!),
-                                nextPossibleActivityIds: new Input<List<string>>(async context =>
-                                {
-                                    var defId = context.GetWorkflowExecutionContext().Workflow.DefinitionHandle.DefinitionId;
-                                    var nextActivityId = userWorkflowConfig.Get(context)?.FirstActivityConfig.NextActivityId;
-                                    return new List<string>()
-                                    {
-                                        (await context.GetRequiredService<IRtsActivityFinder>()
-                                        .FindActivityAsync(definitionId: defId! , activityId: nextActivityId!))!.Id
-                                    };
-                                }),
+                                requiredFieldValues:  new Input<List<RequiredFieldValue>>(context => userWorkflowConfig.Get(context)?.FirstActivityConfig?.RequiredFieldValues!),
                                 taskName: "Create Bank Guarantee Document",
                                 null,
                                 null,

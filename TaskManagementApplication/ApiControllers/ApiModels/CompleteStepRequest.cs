@@ -1,4 +1,4 @@
-﻿namespace TaskManagementApplication.ApiModels
+﻿namespace TaskManagementApplication.ApiControllers.ApiModels
 {
     public class CompleteStepRequest
     {

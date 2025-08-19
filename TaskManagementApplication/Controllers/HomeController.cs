@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using TaskManagementApplication.ApiModels;
+using TaskManagementApplication.ApiControllers.ApiModels;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Models;
 using TaskManagementApplication.Services;

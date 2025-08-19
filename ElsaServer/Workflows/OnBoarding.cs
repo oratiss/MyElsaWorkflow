@@ -40,6 +40,8 @@ namespace ElsaServer.Workflows
                     },
                     new RunTask("Create Email Account")
                     {
+                        Name = "Shalgham",
+                        TaskName = new Elsa.Workflows.Models.Input<string>("Golabi"),
                         Payload = new (context =>
                         {
                             Other sampleOther = new()
@@ -59,6 +61,7 @@ namespace ElsaServer.Workflows
 
                     new SetVariable
                     {
+                        
                         Variable = previousRunTasKResultAsInput,
                         Value = new (context =>
                         {

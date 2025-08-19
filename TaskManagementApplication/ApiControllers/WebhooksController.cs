@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Rts.Common;
 using System.Text.Json;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Entities;
 
-namespace TaskManagementApplication.Controllers
+namespace TaskManagementApplication.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -20,6 +21,8 @@ namespace TaskManagementApplication.Controllers
             var taskPayload = payload.TaskPayload;
             var employee = taskPayload.Employee;
 
+
+            //var nextTaskList = 
             var task = new OnboardingTask
             {
                 ProcessId = payload.WorkflowInstanceId,
@@ -28,7 +31,8 @@ namespace TaskManagementApplication.Controllers
                 Description = taskPayload.Description,
                 EmployeeEmail = employee.Email,
                 EmployeeName = employee.Name,
-                CreatedAt = DateTimeOffset.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow,
+                
             };
 
             await dbContext.OnBoardingTasks.AddAsync(task);
@@ -53,9 +57,8 @@ namespace TaskManagementApplication.Controllers
             var UserWorkflowConfig  = new UserActivityConfig(
                new PerformerGroup(currentPerformerGroup.Id, currentPerformerGroup.Name),
                new User(currentPerformerUser.Id, currentPerformerUser.FirstName, currentPerformerUser.LastName),
-               firstActivityConfig.RequiredFields,
-               firstActivityConfig.Decision,
-               firstActivityConfig.NextActivityId
+               firstActivityConfig.RequiredFieldValues
+
                 );
 
             var step = new Step

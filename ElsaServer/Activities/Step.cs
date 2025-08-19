@@ -1,8 +1,7 @@
 ﻿using Elsa.Expressions.Models;
 using Elsa.Workflows.Models;
 using Elsa.Workflows.Runtime.Activities;
-using ElsaServer.Models;
-using Humanizer;
+using Rts.Common;
 using System.Runtime.CompilerServices;
 
 namespace ElsaServer.Activities
@@ -12,8 +11,7 @@ namespace ElsaServer.Activities
         public Step(
             long performerUserId,
             PerformerGroup activePerformerGroup,
-            Input<List<RequiredField>> requiredFields,
-            Input<List<string>> nextPossibleActivityIds,
+            Input<List<RequiredFieldValue>> requiredFieldValues,
             MemoryBlockReference output,
             long? ToEntityStateId = null,
             [CallerFilePath] string? source = null,
@@ -25,8 +23,7 @@ namespace ElsaServer.Activities
         public Step(
             long performerUserId,
             PerformerGroup activePerformerGroup,
-            Input<List<RequiredField>> requiredFields,
-            Input<List<string>> nextPossibleActivityIds,
+            Input<List<RequiredFieldValue>> requiredFieldValues,
             string taskName,
             long? ToEntityStateId = null,
             [CallerFilePath] string? source = null,
@@ -47,12 +44,13 @@ namespace ElsaServer.Activities
 
         public long PerformerUserId { get; set; }
 
-        public Input<List<string>> NextPossibleActivityIds { get; set; } = null!;
-
-        public Input<List<RequiredField>> RequiredFields { get; set; } = null!;
+        public Input<List<RequiredFieldValue>> RequiredFieldValues { get; set; } = null!;
 
         public string? Description { get; set; } = null;
 
         public long? ToEntityStateId { get; set; }
+
+        public object? PossibleRequiredData { get; set; }
+        
     }
 }
