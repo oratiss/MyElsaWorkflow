@@ -3,15 +3,13 @@
 
     public class UserActivityConfig
     {
-        private PerformerGroup performerGroup;
-        private User user;
-        private List<RequiredFieldValue>? requiredFieldValues;
 
-        public UserActivityConfig(PerformerGroup performerGroup, User user, List<RequiredFieldValue>? requiredFieldValues)
+        public UserActivityConfig(PerformerGroup performerGroup, User user, List<RequiredFieldValue>? requiredFieldValues, object? possibleRequiredData = null)
         {
-            this.performerGroup = performerGroup;
-            this.user = user;
-            this.requiredFieldValues = requiredFieldValues;
+            CurrentPerformerGroup = performerGroup;
+            CurrentPerformerUser = user;
+            RequiredFieldValues = requiredFieldValues;
+            PossibleRequiredData = possibleRequiredData;
         }
 
         public PerformerGroup CurrentPerformerGroup { get; set; } = null!; //workflow runtime

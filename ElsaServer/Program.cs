@@ -17,7 +17,7 @@ using System.Text.Json;
     var services = builder.Services;
     var configuration = builder.Configuration;
 
-    services.AddScoped<IRtsActivityFinder, RtsActivityFinder>();
+    //services.AddScoped<IRtsActivityFinder, RtsActivityFinder>();
 
     services
     .AddElsa(elsa => elsa

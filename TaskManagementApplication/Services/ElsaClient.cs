@@ -35,7 +35,7 @@ namespace TaskManagementApplication.Services
         {
             var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
             var url = new Uri($"workflow-definitions/{workflowDefinitionId}/execute", UriKind.Relative);
-            object request = new Request<object>()
+            var request = new Request<object>()
             {
                 Input = workflowConfig
             };
