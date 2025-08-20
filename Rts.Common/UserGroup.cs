@@ -1,11 +1,11 @@
 ﻿namespace Rts.Common
 {
-    public class PerformerGroup
+    public class UserGroup
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = null!;
 
-        public PerformerGroup(long id, string name)
+        public UserGroup(Guid id, string name)
         {
             Id = id;
             Name = name;

@@ -2,7 +2,9 @@
 {
     public class UserWorkflowConfig
     {
-        public List<PerformerGroup> AssignableUserGroups { get; set; } = null!;
+        public List<UserGroup> AssignableUserGroups { get; set; } = null!;
         public UserActivityConfig FirstActivityConfig { get; set; } = null!;
     }
+
+    
 }

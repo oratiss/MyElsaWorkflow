@@ -1,24 +1,15 @@
 ﻿namespace Rts.Common
 {
 
-    public class UserActivityConfig
+    public class UserActivityConfig(UserGroup performerGroup, User user, List<RequiredFieldValue>? requiredFieldValues, object? possibleRequiredData = null)
     {
+        public UserGroup CurrentPerformerGroup { get; set; } = performerGroup;
 
-        public UserActivityConfig(PerformerGroup performerGroup, User user, List<RequiredFieldValue>? requiredFieldValues, object? possibleRequiredData = null)
-        {
-            CurrentPerformerGroup = performerGroup;
-            CurrentPerformerUser = user;
-            RequiredFieldValues = requiredFieldValues;
-            PossibleRequiredData = possibleRequiredData;
-        }
+        public User CurrentPerformerUser { get; set; } = user;
 
-        public PerformerGroup CurrentPerformerGroup { get; set; } = null!; //workflow runtime
+        public List<RequiredFieldValue>? RequiredFieldValues { get; set; } = requiredFieldValues;
 
-        public User CurrentPerformerUser { get; set; } = null!; //workflow runtime
-
-        public List<RequiredFieldValue>? RequiredFieldValues { get; set; }
-
-        public object? PossibleRequiredData { get; set; }
+        public object? PossibleRequiredData { get; set; } = possibleRequiredData;
 
     }
 

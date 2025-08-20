@@ -1,14 +1,14 @@
-﻿namespace ElsaServer.Workflows
+﻿namespace Rts.Common.BankGuaranteeModels
 {
-    public enum BankGuaranteeStandardState
+    public enum BankGuaranteeState
     {
         None = 1,
 
-        Created = 5,
-        
+        CreatedAsDraft = 5,
+
         ApprovedByExpert = 10,
         RejectedByExpert = 12,
-        
+
         ApprovedByPM = 15,
         RejectedByPm = 17
     }

@@ -1,58 +1,44 @@
-﻿using Acornima.Ast;
-using Elsa.Api.Client.Extensions;
+﻿using Elsa.Api.Client.Extensions;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Runtime.Activities;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Threading;
+using ElsaServer.Models;
 
 namespace ElsaServer.Workflows
 {
-    public class Some
-    {
-        public string Name { get; set; } = null!;
-    }
-
-    public class Other
-    {
-        public decimal Amount { get; set; }
-    }
 
     public class OnBoarding : WorkflowBase
     {
         protected override void Build(IWorkflowBuilder builder)
         {
-            var employee = builder.WithVariable<object>();
+            var userWorkflowConfig = builder.WithVariable<object>();
 
-            var previousRunTasKResultAsInput = builder.WithVariable<Some?>();
+            var previousRunTasKResultAsInput = builder.WithVariable<ResumedTaskResult?>();
 
             builder.Root = new Sequence
             {
                 Activities =
                 {
-                    new Start(),
+                   new Start(),
                     new SetVariable
                     {
-                        Variable = employee,
-                        Value = new (context => context.GetInput("Employee"))
+                        Variable = userWorkflowConfig,
+                        Value = new (context => context.GetInput("UserWorkflowConfig"))
                     },
                     new RunTask("Create Email Account")
                     {
-                        Name = "Shalgham",
-                        TaskName = new Elsa.Workflows.Models.Input<string>("Golabi"),
                         Payload = new (context =>
                         {
-                            Other sampleOther = new()
+                            RunTaskPayload sampleOther = new()
                             {
                                 Amount = 100_000m
                             };
 
                             return new Dictionary<string, object>
                             {
-                                ["Employee"] = employee.Get(context)!,
-                                ["Description"] = "Create an email account for the new employee.",  
+                                ["Employee"] = userWorkflowConfig.Get(context)!,
+                                ["Description"] = "Create an email account for the new employee.",
                                 ["Other"] = sampleOther
                             };
                         })
@@ -61,36 +47,36 @@ namespace ElsaServer.Workflows
 
                     new SetVariable
                     {
-                        
+
                         Variable = previousRunTasKResultAsInput,
                         Value = new (context =>
                         {
                             var input = context.GetWorkflowExecutionContext().Input;
                             var runTaskInput = input["RunTaskInput"];
-                            var some =  runTaskInput.ConvertTo<Some>();
+                            var some =  runTaskInput.ConvertTo<ResumedTaskResult>();
                             return some;
                         })
                     },
 
-                    new WriteLine(context =>
-                    {
-                        var currentValue = previousRunTasKResultAsInput.Get(context);
+                    //new WriteLine(context =>
+                    //{
+                    //    var currentValue = previousRunTasKResultAsInput.Get(context);
 
-                        return $"Name is: {currentValue?.Name}";
-                    }),
+                    //    return $"Name is: {currentValue?.Name}";
+                    //}),
 
                     new RunTask("Create Slack Account")
                     {
                         Payload = new (context =>
                         {
-                            Other sampleOther = new()
+                            RunTaskPayload sampleOther = new()
                             {
                                 Amount = 30_000_000_000m
                             };
-                             
+
                             return new Dictionary<string, object>
                             {
-                                ["Employee"] = employee.Get(context)!,
+                                ["Employee"] = userWorkflowConfig.Get(context)!,
                                 ["Description"] = "Create a Slack account for the new employee.",
                                 ["Other"] = sampleOther
                             };
@@ -114,7 +100,7 @@ namespace ElsaServer.Workflows
                             {
                                 Payload = new(context => new Dictionary<string, object>
                                 {
-                                    ["Employee"] = employee.Get(context)!,
+                                    ["Employee"] = userWorkflowConfig.Get(context)!,
                                     ["Description"] = "Create a GitHub account for the new employee."
                                 })
                             },
@@ -122,7 +108,7 @@ namespace ElsaServer.Workflows
                             {
                                 Payload = new(context => new Dictionary<string, object>
                                 {
-                                    ["Employee"] = employee.Get(context)!,
+                                    ["Employee"] = userWorkflowConfig.Get(context)!,
                                     ["Description"] = "Add the new employee to the HR system."
                                 })
                             }

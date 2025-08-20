@@ -9,11 +9,10 @@ namespace ElsaServer.Activities
     public class Step : RunTask
     {
         public Step(
-            long performerUserId,
-            PerformerGroup activePerformerGroup,
-            Input<List<RequiredFieldValue>> requiredFieldValues,
+            Guid performerUserId,
+            UserGroup activePerformerGroup,
+            List<RequiredFieldValue> requiredFieldValues,
             MemoryBlockReference output,
-            long? ToEntityStateId = null,
             [CallerFilePath] string? source = null,
             [CallerLineNumber] int? line = null,
             string? description = null) : base(output, source, line)
@@ -21,11 +20,10 @@ namespace ElsaServer.Activities
         }
 
         public Step(
-            long performerUserId,
-            PerformerGroup activePerformerGroup,
-            Input<List<RequiredFieldValue>> requiredFieldValues,
+            Guid performerUserId,
+            UserGroup activePerformerGroup,
+            List<RequiredFieldValue> requiredFieldValues,
             string taskName,
-            long? ToEntityStateId = null,
             [CallerFilePath] string? source = null,
             [CallerLineNumber] int? line = null,
             string? description = null) : base(taskName, source, line)
@@ -40,15 +38,13 @@ namespace ElsaServer.Activities
 
         }
 
-        public PerformerGroup performerGroup { get; set; } = null!;
+        public UserGroup performerGroup { get; set; } = null!;
 
-        public long PerformerUserId { get; set; }
+        public Guid PerformerUserId { get; set; }
 
-        public Input<List<RequiredFieldValue>> RequiredFieldValues { get; set; } = null!;
+        public List<RequiredFieldValue> RequiredFieldValues { get; set; } = null!;
 
         public string? Description { get; set; } = null;
-
-        public long? ToEntityStateId { get; set; }
 
         public object? PossibleRequiredData { get; set; }
         

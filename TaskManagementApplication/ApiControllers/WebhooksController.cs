@@ -55,7 +55,7 @@ namespace TaskManagementApplication.ApiControllers
             var currentPerformerUser = firstActivityConfig.CurrentPerformerUser;
 
             var UserWorkflowConfig  = new UserActivityConfig(
-               new PerformerGroup(currentPerformerGroup.Id, currentPerformerGroup.Name),
+               new UserGroup(currentPerformerGroup.Id, currentPerformerGroup.Name),
                new User(currentPerformerUser.Id, currentPerformerUser.FirstName, currentPerformerUser.LastName),
                firstActivityConfig.RequiredFieldValues
 
