@@ -12,7 +12,7 @@ namespace ElsaServer.Workflows
     {
         protected override void Build(IWorkflowBuilder builder)
         {
-            var userWorkflowConfig = builder.WithVariable<object>();
+            var employee = builder.WithVariable<object>();
 
             var previousRunTasKResultAsInput = builder.WithVariable<ResumedTaskResult?>();
 
@@ -23,23 +23,20 @@ namespace ElsaServer.Workflows
                    new Start(),
                     new SetVariable
                     {
-                        Variable = userWorkflowConfig,
-                        Value = new (context => context.GetInput("UserWorkflowConfig"))
+                        Variable = employee,
+                        Value = new (context => context.GetInput("Employee"))
                     },
                     new RunTask("Create Email Account")
                     {
                         Payload = new (context =>
                         {
-                            RunTaskPayload sampleOther = new()
-                            {
-                                Amount = 100_000m
-                            };
+
 
                             return new Dictionary<string, object>
                             {
-                                ["Employee"] = userWorkflowConfig.Get(context)!,
+                                ["Employee"] = employee.Get(context)!,
                                 ["Description"] = "Create an email account for the new employee.",
-                                ["Other"] = sampleOther
+
                             };
                         })
 
@@ -62,16 +59,15 @@ namespace ElsaServer.Workflows
                     {
                         Payload = new (context =>
                         {
-                            RunTaskPayload sampleOther = new()
-                            {
-                                Amount = 30_000_000_000m
-                            };
+                            //RunTaskPayload sampleOther = new()
+                            //{
+                            //    Amount = 30_000_000_000m
+                            //};
 
                             return new Dictionary<string, object>
                             {
-                                ["Employee"] = userWorkflowConfig.Get(context)!,
+                                ["Employee"] = employee.Get(context)!,
                                 ["Description"] = "Create a Slack account for the new employee.",
-                                ["Other"] = sampleOther
                             };
                         })
                     },
@@ -86,7 +82,7 @@ namespace ElsaServer.Workflows
                             {
                                 Payload = new(context => new Dictionary<string, object>
                                 {
-                                    ["Employee"] = userWorkflowConfig.Get(context)!,
+                                    ["Employee"] = employee.Get(context)!,
                                     ["Description"] = "Create a GitHub account for the new employee."
                                 })
                             },
@@ -94,7 +90,7 @@ namespace ElsaServer.Workflows
                             {
                                 Payload = new(context => new Dictionary<string, object>
                                 {
-                                    ["Employee"] = userWorkflowConfig.Get(context)!,
+                                    ["Employee"] = employee.Get(context)!,
                                     ["Description"] = "Add the new employee to the HR system."
                                 })
                             }

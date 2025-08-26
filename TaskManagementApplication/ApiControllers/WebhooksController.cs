@@ -12,35 +12,36 @@ namespace TaskManagementApplication.ApiControllers
     [ApiController]
     public class WebhooksController(TaskManagementDbContext dbContext, IElsaClient elsaClient) : ControllerBase
     {
-        //[HttpPost("run-task")]
-        //public async Task<IActionResult> RunTask(WebhookEvent webhookEvent)
-        //{
-        //    if (webhookEvent is null)
-        //        return BadRequest();
 
-        //    var payload = webhookEvent.Payload;
-        //    var taskPayload = payload.TaskPayload;
-        //    var employee = taskPayload.Employee;
+        [HttpPost("run-task")]
+        public async Task<IActionResult> RunTask(WebhookEvent webhookEvent)
+        {
+            if (webhookEvent is null)
+                return BadRequest();
+
+            var payload = webhookEvent.Payload;
+            var taskPayload = payload.TaskPayload;
+            var employee = taskPayload.Employee;
 
 
-        //    //var nextTaskList = 
-        //    var task = new OnboardingTask
-        //    {
-        //        ProcessId = payload.WorkflowInstanceId,
-        //        ExternalId = payload.TaskId,
-        //        Name = payload.TaskName,
-        //        Description = taskPayload.Description,
-        //        EmployeeEmail = employee.Email,
-        //        EmployeeName = employee.Name,
-        //        CreatedAt = DateTimeOffset.UtcNow,
+            //var nextTaskList = 
+            var task = new OnboardingTask
+            {
+                ProcessId = payload.WorkflowInstanceId,
+                ExternalId = payload.TaskId,
+                Name = payload.TaskName,
+                Description = taskPayload.Description,
+                EmployeeEmail = employee.Email,
+                EmployeeName = employee.Name,
+                CreatedAt = DateTimeOffset.UtcNow,
 
-        //    };
+            };
 
-        //    await dbContext.OnBoardingTasks.AddAsync(task);
-        //    await dbContext.SaveChangesAsync();
+            await dbContext.OnBoardingTasks.AddAsync(task);
+            await dbContext.SaveChangesAsync();
 
-        //    return Ok();
-        //}
+            return Ok();
+        }
 
         [HttpPost("step")]
         public async Task<IActionResult> Step(StepWebhookEvent stepWebhookEvent)

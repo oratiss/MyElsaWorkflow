@@ -3,12 +3,9 @@ using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
-using Elsa.Workflows.Memory;
 using ElsaServer.Activities;
 using ElsaServer.Models;
 using Rts.Common;
-using Rts.Common.BankGuaranteeModels;
-using System.Text.Json;
 using Connection = Elsa.Workflows.Activities.Flowchart.Models.Connection;
 using Endpoint = Elsa.Workflows.Activities.Flowchart.Models.Endpoint;
 
@@ -23,7 +20,7 @@ namespace ElsaServer.Workflows
             var userWorkflowConfig = builder.WithVariable<UserWorkflowConfig>();
             var userWorkflowConfigDef = builder.WithInput<UserWorkflowConfig>("UserWorkflowConfig");
 
-            Variable<BankGuaranteeState> workflowState = builder.WithVariable<BankGuaranteeState>();
+            //Variable<BankGuaranteeState> workflowState = builder.WithVariable<BankGuaranteeState>();
 
             var previousRunTasKResultAsInput = builder.WithVariable<Dictionary<string, object>>();
 
@@ -41,39 +38,33 @@ namespace ElsaServer.Workflows
                 Variable = userWorkflowConfig,
                 Value = new(context =>
                 {
-                    //context.
                     var inputConfig = context.GetInput<UserWorkflowConfig>("UserWorkflowConfig");
-                    //var serializedInputConfig = JsonSerializer.Serialize(inputConfig!);
-                    //var seriallizedInputConfig = JsonSerializer.Deserialize<JsonElement>(serializedInputConfig, new JsonSerializerOptions
-                    //{
-                    //    IncludeFields = true,
-                    //    PropertyNameCaseInsensitive = true
-                    //});
-
                     return inputConfig;
-
                 })
             };
 
 
             //Create Step with runtime evaluation using delegates
+
             var stepActivity = new Step(
-                taskName: "Create Bank Guarantee Document",
-                null,
-                null,
-                description: $"This step is for creating a \"Bank Guarantee document\""
-            )
+                  taskName: "Create Bank Guarantee Document",
+                  null,
+                  null,
+                  description: $"This step is for creating a \"Bank Guarantee document\""
+              )
             {
                 Id = "createBankGuarantee",
                 Payload = new(context =>
                 {
                     nextActivityTransistionType = NextActivityTransistionType.SelectByLogic;
-                    return new Dictionary<string, object>
-                    {
-                        ["UserWorkflowConfig"] = userWorkflowConfig.Get(context)!,
-                        ["Description"] = "Create Bank Guarantee",
-                        ["NextActivityTransistionType"] = nextActivityTransistionType
-                    };
+                    var resultDict = new Dictionary<string, object>();
+
+                    var userWorkFlowConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", userWorkFlowConfig);
+                    resultDict.Add("Description", "Create Bank Guarantee");
+                    resultDict.Add("NextActivityTransistionType", nextActivityTransistionType);
+
+                    return resultDict;
                 }),
             };
 
@@ -166,6 +157,8 @@ namespace ElsaServer.Workflows
                     }
                 }
             };
+
+
         }
 
     }

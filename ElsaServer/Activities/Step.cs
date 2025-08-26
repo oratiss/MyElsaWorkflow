@@ -51,14 +51,5 @@ namespace ElsaServer.Activities
 
         public object? PossibleRequiredData { get; set; }
 
-        protected override ValueTask ExecuteAsync(ActivityExecutionContext context)
-        {
-            var userWorkflowConfig = context.Variables.FirstOrDefault(x => x.Name == "userWorkflowConfig")!.Value as UserWorkflowConfig;
-            PerformerUserId = userWorkflowConfig!.FirstActivityConfig.CurrentPerformerUser.Id;
-            performerGroup = userWorkflowConfig!.FirstActivityConfig.CurrentPerformerGroup;
-            RequiredFieldValues = userWorkflowConfig!.FirstActivityConfig.RequiredFieldValues!;
-            return base.ExecuteAsync(context);
-        }
-        
     }
 }
