@@ -28,6 +28,8 @@ namespace TaskManagementApplication.ApiControllers
         [AllowAnonymous]
         public async Task<ActionResult> RunWorkflow([FromRoute] long id, [FromBody] RunWorkflowRequest request)
         {
+            //Todo: validate request
+
             //var workFlow = dbContext.Workflows.Find(id);
             //if (workFlow is null)
             //{
