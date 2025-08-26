@@ -1,4 +1,6 @@
-﻿namespace TaskManagementApplication.Entities
+﻿using Rts.Common;
+
+namespace TaskManagementApplication.Entities
 {
     public class Step
     {
@@ -51,5 +53,7 @@
         public string? NextActivityId { get; set; }
         
         public string UserWorkflowConfigSerialized { get; set; } = null!;
+
+        public NextActivityTransistionType NextActivityTransistionType { get; set; }
     }
 }

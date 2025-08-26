@@ -9,5 +9,7 @@ namespace TaskManagementApplication.Services
 
         Task RunWorkflowAsync(string workflowDefinitionId, UserWorkflowConfig workflowConfig, CancellationToken cancellationToken = default);
 
+        Task<string> GetWorkflowInstanceInformation(string workflowInstanceId, CancellationToken cancellationToken = default);
+
     }
 }

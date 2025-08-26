@@ -3,11 +3,15 @@ using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
+using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Memory;
+using Elsa.Workflows.Models;
 using ElsaServer.Activities;
 using ElsaServer.Models;
+using Humanizer;
 using Rts.Common;
 using Rts.Common.BankGuaranteeModels;
+using System.Text.Json;
 using Connection = Elsa.Workflows.Activities.Flowchart.Models.Connection;
 using Endpoint = Elsa.Workflows.Activities.Flowchart.Models.Endpoint;
 
@@ -16,22 +20,16 @@ namespace ElsaServer.Workflows
 {
     public class BankGuarantee : WorkflowBase /*: BankGuaranteeStandard*/
     {
-
-        private readonly IIdentityGenerator _idGenerator;
-
-        public BankGuarantee(IIdentityGenerator idGenerator)
-        {
-            _idGenerator = idGenerator;
-        }
-
         protected override void Build(IWorkflowBuilder builder)
         {
 
             var userWorkflowConfig = builder.WithVariable<UserWorkflowConfig>();
+
             Variable<BankGuaranteeState> workflowState = builder.WithVariable<BankGuaranteeState>();
+
             var previousRunTasKResultAsInput = builder.WithVariable<Dictionary<string, object>>();
 
-            NextActivityTransistionType nextActivityTransistionType = NextActivityTransistionType.None; 
+            NextActivityTransistionType nextActivityTransistionType = NextActivityTransistionType.None;
 
             // Create activities with explicit IDs
             var startActivity = new Start
@@ -43,13 +41,33 @@ namespace ElsaServer.Workflows
             {
                 Id = "setConfig",
                 Variable = userWorkflowConfig,
-                Value = new(context => context.GetInput<UserWorkflowConfig>("UserWorkflowConfig"))
+                Value = new(context =>
+                {
+
+                    try
+                    {
+                        var inputConfig = context.GetWorkflowInputs().FirstOrDefault(x => x.Name == "UserWorkflowConfig");
+                        var serializedInputConfig = JsonSerializer.Serialize(inputConfig!.Value);
+                        var seriallizedInputConfig = JsonSerializer.Deserialize<JsonElement>(serializedInputConfig, new JsonSerializerOptions
+                        {
+                            IncludeFields = true,
+                            PropertyNameCaseInsensitive = true
+                        });
+
+                        return inputConfig;
+                    }
+                    catch(Exception ex) 
+                    {
+                        return new UserWorkflowConfig();
+                        
+                        //return FillSampleConfigData();
+                    }
+                })
             };
 
+
+            //Create Step with runtime evaluation using delegates
             var stepActivity = new Step(
-                ((UserWorkflowConfig)userWorkflowConfig.Value!).FirstActivityConfig.CurrentPerformerUser.Id,
-                ((UserWorkflowConfig)userWorkflowConfig.Value!).FirstActivityConfig.CurrentPerformerGroup,
-                ((UserWorkflowConfig)userWorkflowConfig.Value!).FirstActivityConfig.RequiredFieldValues!,
                 taskName: "Create Bank Guarantee Document",
                 null,
                 null,
@@ -77,8 +95,8 @@ namespace ElsaServer.Workflows
                 {
                     var input = context.GetWorkflowExecutionContext().Input;
                     var runTaskInput = input["RunTaskInput"];
-                    var some = runTaskInput.ConvertTo<ResumedTaskResult>();
-                    return some;
+                    var valueToBeSet = runTaskInput.ConvertTo<ResumedTaskResult>();
+                    return valueToBeSet;
                 })
             };
 
@@ -87,17 +105,15 @@ namespace ElsaServer.Workflows
                 Id = "end"
             };
 
-
             builder.Root = new Flowchart
             {
                 Activities =
                 {
                     startActivity,
                     setConfigActivity,
-                    stepActivity,
+                    //stepActivity,
                     setResultActivity,
                     endActivity
-
                 },
 
                 Connections =
@@ -159,9 +175,9 @@ namespace ElsaServer.Workflows
                         }
                     }
                 }
-
             };
         }
+
     }
 
 }

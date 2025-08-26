@@ -1,15 +1,22 @@
 ﻿namespace Rts.Common
 {
 
-    public class UserActivityConfig(UserGroup performerGroup, User user, List<RequiredFieldValue>? requiredFieldValues, object? possibleRequiredData = null)
+    public class UserActivityConfig
     {
-        public UserGroup CurrentPerformerGroup { get; set; } = performerGroup;
+        public UserActivityConfig(UserGroup performerGroup, User user, Dictionary<string, object>? requiredFieldValues, object? possibleRequiredData = null)
+        {
+            CurrentPerformerGroup = performerGroup;
+            CurrentPerformerUser = user;
+            RequiredFieldValues = requiredFieldValues;
+            PossibleRequiredData = possibleRequiredData;
+        }
+        public UserGroup CurrentPerformerGroup { get; set; }
 
-        public User CurrentPerformerUser { get; set; } = user;
+        public User CurrentPerformerUser { get; set; }
 
-        public List<RequiredFieldValue>? RequiredFieldValues { get; set; } = requiredFieldValues;
+        public Dictionary<string, object>? RequiredFieldValues { get; set; }
 
-        public object? PossibleRequiredData { get; set; } = possibleRequiredData;
+        public object? PossibleRequiredData { get; set; }
 
     }
 

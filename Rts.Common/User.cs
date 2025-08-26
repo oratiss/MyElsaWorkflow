@@ -4,6 +4,8 @@
     {
 
         public Guid Id { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
 
         public User(Guid id, string firstName, string lastName)
         {
@@ -12,8 +14,6 @@
             LastName = lastName;
         }
 
-        public string FirstName { get; set; } = null!;
-        public string LastName { get; set; } = null!;
         public string FullName
         {
             get => $"{FirstName} {LastName}";

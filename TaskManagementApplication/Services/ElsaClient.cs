@@ -1,5 +1,8 @@
 ﻿using Elsa.Expressions.Models;
+using Elsa.Workflows.Management.Entities;
+using FastEndpoints;
 using Rts.Common;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,11 +40,22 @@ namespace TaskManagementApplication.Services
             var url = new Uri($"workflow-definitions/{workflowDefinitionId}/execute", UriKind.Relative);
             var request = new ElsaApiRequest<object>()
             {
-                Input = workflowConfig
+                Input = new
+                {
+                    UserWorkflowConfig = workflowConfig
+                }
             };
             await httpclient.PostAsJsonAsync(url, request, cancellationToken);
         }
 
+        public async Task<string> GetWorkflowInstanceInformation(string workflowInstanceId, CancellationToken cancellationToken)
+        {
+            var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
+            var url = new Uri($"workflow-instances/{workflowInstanceId}", UriKind.Relative);
 
+            var elsaHttpResponse  = await httpclient.GetFromJsonAsync<object>(url, cancellationToken);
+
+            return JsonSerializer.Serialize(elsaHttpResponse);
+        }
     }
 }

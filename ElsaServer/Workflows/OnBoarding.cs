@@ -58,13 +58,6 @@ namespace ElsaServer.Workflows
                         })
                     },
 
-                    //new WriteLine(context =>
-                    //{
-                    //    var currentValue = previousRunTasKResultAsInput.Get(context);
-
-                    //    return $"Name is: {currentValue?.Name}";
-                    //}),
-
                     new RunTask("Create Slack Account")
                     {
                         Payload = new (context =>
@@ -88,14 +81,7 @@ namespace ElsaServer.Workflows
                     {
                         Activities =
                         {
-                            //new RunTask("Create Slack Account")
-                            //{
-                            //    Payload = new (context => new Dictionary<string, object>
-                            //    {
-                            //        ["Employee"] = employee.Get(context)!,
-                            //        ["Description"] = "Create a Slack account for the new employee."
-                            //    })
-                            //},
+
                             new RunTask("Create GitHub Account")
                             {
                                 Payload = new(context => new Dictionary<string, object>
