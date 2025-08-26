@@ -11,5 +11,10 @@
             Name = name;
         }
 
+        public UserGroup()
+        {
+            
+        }
+
     }
 }

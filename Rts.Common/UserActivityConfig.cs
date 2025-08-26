@@ -3,6 +3,14 @@
 
     public class UserActivityConfig
     {
+        public UserGroup CurrentPerformerGroup { get; set; } = null!;
+
+        public User CurrentPerformerUser { get; set; } = null!;
+
+        public Dictionary<string, object>? RequiredFieldValues { get; set; }
+
+        public object? PossibleRequiredData { get; set; }
+
         public UserActivityConfig(UserGroup performerGroup, User user, Dictionary<string, object>? requiredFieldValues, object? possibleRequiredData = null)
         {
             CurrentPerformerGroup = performerGroup;
@@ -10,13 +18,11 @@
             RequiredFieldValues = requiredFieldValues;
             PossibleRequiredData = possibleRequiredData;
         }
-        public UserGroup CurrentPerformerGroup { get; set; }
 
-        public User CurrentPerformerUser { get; set; }
+        public UserActivityConfig()
+        {
 
-        public Dictionary<string, object>? RequiredFieldValues { get; set; }
-
-        public object? PossibleRequiredData { get; set; }
+        }
 
     }
 

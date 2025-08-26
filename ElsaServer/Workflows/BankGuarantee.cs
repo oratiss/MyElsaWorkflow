@@ -3,12 +3,9 @@ using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
-using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Memory;
-using Elsa.Workflows.Models;
 using ElsaServer.Activities;
 using ElsaServer.Models;
-using Humanizer;
 using Rts.Common;
 using Rts.Common.BankGuaranteeModels;
 using System.Text.Json;
@@ -24,6 +21,7 @@ namespace ElsaServer.Workflows
         {
 
             var userWorkflowConfig = builder.WithVariable<UserWorkflowConfig>();
+            var userWorkflowConfigDef = builder.WithInput<UserWorkflowConfig>("UserWorkflowConfig");
 
             Variable<BankGuaranteeState> workflowState = builder.WithVariable<BankGuaranteeState>();
 
@@ -43,25 +41,17 @@ namespace ElsaServer.Workflows
                 Variable = userWorkflowConfig,
                 Value = new(context =>
                 {
+                    //context.
+                    var inputConfig = context.GetInput<UserWorkflowConfig>("UserWorkflowConfig");
+                    //var serializedInputConfig = JsonSerializer.Serialize(inputConfig!);
+                    //var seriallizedInputConfig = JsonSerializer.Deserialize<JsonElement>(serializedInputConfig, new JsonSerializerOptions
+                    //{
+                    //    IncludeFields = true,
+                    //    PropertyNameCaseInsensitive = true
+                    //});
 
-                    try
-                    {
-                        var inputConfig = context.GetWorkflowInputs().FirstOrDefault(x => x.Name == "UserWorkflowConfig");
-                        var serializedInputConfig = JsonSerializer.Serialize(inputConfig!.Value);
-                        var seriallizedInputConfig = JsonSerializer.Deserialize<JsonElement>(serializedInputConfig, new JsonSerializerOptions
-                        {
-                            IncludeFields = true,
-                            PropertyNameCaseInsensitive = true
-                        });
+                    return inputConfig;
 
-                        return inputConfig;
-                    }
-                    catch(Exception ex) 
-                    {
-                        return new UserWorkflowConfig();
-                        
-                        //return FillSampleConfigData();
-                    }
                 })
             };
 
@@ -111,7 +101,7 @@ namespace ElsaServer.Workflows
                 {
                     startActivity,
                     setConfigActivity,
-                    //stepActivity,
+                    stepActivity,
                     setResultActivity,
                     endActivity
                 },
