@@ -57,10 +57,11 @@ namespace ElsaServer.Workflows
                 Payload = new(context =>
                 {
                     nextActivityTransistionType = NextActivityTransistionType.SelectByLogic;
+
                     var resultDict = new Dictionary<string, object>();
 
-                    var userWorkFlowConfig = userWorkflowConfig.Get(context)!;
-                    resultDict.Add("UserWorkflowConfig", userWorkFlowConfig);
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
                     resultDict.Add("Description", "Create Bank Guarantee");
                     resultDict.Add("NextActivityTransistionType", nextActivityTransistionType);
 

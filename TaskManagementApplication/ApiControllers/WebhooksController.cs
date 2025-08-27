@@ -50,7 +50,7 @@ namespace TaskManagementApplication.ApiControllers
                 return BadRequest();
 
             var payload = stepWebhookEvent.Payload;
-            var stepPayload = payload.StepPayload;
+            var stepPayload = payload.TaskPayload;
             var userWorkflowConfig = stepPayload.UserWorkflowConfig;
             var firstActivityConfig = userWorkflowConfig.FirstActivityConfig;
             var currentPerformerGroup = firstActivityConfig.CurrentPerformerGroup;

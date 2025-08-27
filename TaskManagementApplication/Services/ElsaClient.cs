@@ -37,6 +37,8 @@ namespace TaskManagementApplication.Services
         public async Task RunWorkflowAsync(string workflowDefinitionId, UserWorkflowConfig workflowConfig, CancellationToken cancellationToken = default)
         {
             var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
+            //Todo: below should be removed later. only be used in debug scenarios
+            httpclient.Timeout = TimeSpan.FromSeconds(600);
             var url = new Uri($"workflow-definitions/{workflowDefinitionId}/execute", UriKind.Relative);
             var request = new ElsaApiRequest<object>()
             {
