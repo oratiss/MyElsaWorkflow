@@ -24,7 +24,7 @@ namespace ElsaServer.Workflows
 
             var previousRunTasKResultAsInput = builder.WithVariable<Dictionary<string, object>>();
 
-            NextActivityTransistionType nextActivityTransistionType = NextActivityTransistionType.None;
+            //NextActivityTransistionType nextActivityTransistionType = NextActivityTransistionType.None;
 
             // Create activities with explicit IDs
             var startActivity = new Start
@@ -56,14 +56,14 @@ namespace ElsaServer.Workflows
                 Id = "createBankGuarantee",
                 Payload = new(context =>
                 {
-                    nextActivityTransistionType = NextActivityTransistionType.SelectByLogic;
-
                     var resultDict = new Dictionary<string, object>();
 
                     var wfConfig = userWorkflowConfig.Get(context)!;
                     resultDict.Add("UserWorkflowConfig", wfConfig);
                     resultDict.Add("Description", "Create Bank Guarantee");
-                    resultDict.Add("NextActivityTransistionType", nextActivityTransistionType);
+                    
+                    //nextActivityTransistionType = NextActivityTransistionType.SelectByLogic;
+                    //resultDict.Add("NextActivityTransistionType", nextActivityTransistionType);
 
                     return resultDict;
                 }),
