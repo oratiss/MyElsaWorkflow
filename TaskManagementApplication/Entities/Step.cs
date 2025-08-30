@@ -50,10 +50,14 @@ namespace TaskManagementApplication.Entities
         /// </summary>
         public string? Result { get; set; }
 
-        public string? NextActivityId { get; set; }
-        
+        public  bool IsFormFilled { get; set; }
+
+        public string? NextElsaActivities { get; set; }
+
         public string UserWorkflowConfigSerialized { get; set; } = null!;
 
-        public NextActivityTransistionType NextActivityTransistionType { get; set; }
+
+
     }
+
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementApplication.Data;
 
@@ -11,9 +12,11 @@ using TaskManagementApplication.Data;
 namespace TaskManagementApplication.Migrations
 {
     [DbContext(typeof(TaskManagementDbContext))]
-    partial class TaskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250830111249_UserWorkflowConfigSerialized and NextElsaActivities")]
+    partial class UserWorkflowConfigSerializedandNextElsaActivities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,9 +109,6 @@ namespace TaskManagementApplication.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFormFilled")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")

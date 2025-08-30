@@ -1,0 +1,85 @@
+﻿@model TaskManagementApplication.Views.Steps.IndexViewModel
+@{
+    ViewData["Title"] = "Steps Management Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Steps</h1>
+    <p>Please complete the following steps.</p>
+</div>
+
+<div class="container">
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Task ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var step in Model.Steps)
+            {
+                <tr>
+
+                    <th scope="row">@step.Id</th>
+                    <td>@step.Name</td>
+                    <td>@step.Description</td>
+                    <td>
+                        @if (!step.IsFormFilled)
+                        {
+                            <button class="btn btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#fillFormModal"
+                                    data-url="@Url.Action("FillForm", "Steps", new { stepId = step.Id })">
+                                Fill Form
+                            </button>
+                        }
+                        else
+                        {
+                            <form asp-action="FillForm">
+                                <button type="submit" class="btn disabled">Fill Form</button>
+                            </form>
+                        }
+                    </td>
+                    <td>
+                        <form asp-action="Complete">
+                            <input type="hidden" name="StepId" value="@step.Id" />
+                            <button type="submit" class="btn btn-primary">Complete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+
+<!-- Empty Modal Shell -->
+<div class="modal fade" id="fillFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- content loaded here -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const fillFormModal = document.getElementById('fillFormModal');
+        fillFormModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const url = button.getAttribute('data-url');
+            const modalContent = fillFormModal.querySelector('.modal-content');
+
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    modalContent.innerHTML = html;
+                });
+        });
+    </script>
+}

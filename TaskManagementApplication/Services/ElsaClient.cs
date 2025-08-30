@@ -1,11 +1,14 @@
 ﻿using Elsa.Expressions.Models;
 using Elsa.Workflows.Management.Entities;
+using Elsa.Workflows.Management.Models;
 using FastEndpoints;
 using Rts.Common;
+using System;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
 using TaskManagementApplication.Services.Models;
 
 namespace TaskManagementApplication.Services
@@ -28,7 +31,7 @@ namespace TaskManagementApplication.Services
             var request = new { Result = result };
             await httpclient.PostAsJsonAsync(url, request, cancellationToken);
         }
-        
+
         /// <summary>
         /// Runs a workflow with new Instance in Elsa
         /// </summary>
@@ -50,14 +53,29 @@ namespace TaskManagementApplication.Services
             await httpclient.PostAsJsonAsync(url, request, cancellationToken);
         }
 
-        public async Task<string> GetWorkflowInstanceInformation(string workflowInstanceId, CancellationToken cancellationToken)
+        public async Task<string> GetWorkflowInstanceInformationAsync(string workflowInstanceId, CancellationToken cancellationToken)
         {
             var httpclient = httpClientFactory.CreateClient("elsaHttpClient");
             var url = new Uri($"workflow-instances/{workflowInstanceId}", UriKind.Relative);
-
-            var elsaHttpResponse  = await httpclient.GetFromJsonAsync<object>(url, cancellationToken);
-
+            var elsaHttpResponse = await httpclient.GetFromJsonAsync<object>(url, cancellationToken);
             return JsonSerializer.Serialize(elsaHttpResponse);
+        }
+
+        public async Task<string> GetWorkflowDefinitionInformationAsync(string? definitionId, CancellationToken cancellationToken)
+        {
+            var httpClient = httpClientFactory.CreateClient("elsaHttpClient");
+            var requestBody = new { id = $"{definitionId}" };
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = new Uri($"workflow-definitions/by-definition-id/{definitionId}", UriKind.Relative);
+            var request = new HttpRequestMessage(HttpMethod.Get, url)
+            {
+                Content = content
+            };
+            var elsaHttpResponse = await httpClient.SendAsync(request, cancellationToken);
+            var result = await elsaHttpResponse.Content.ReadFromJsonAsync<object>(cancellationToken);
+            return JsonSerializer.Serialize(result);
+
         }
     }
 }

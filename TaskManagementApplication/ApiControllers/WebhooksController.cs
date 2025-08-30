@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Rts.Common;
 using System.Text.Json;
+using System.Threading;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Entities;
 using TaskManagementApplication.Services;
+using TaskManagementApplication.Services.Models.ElsaResponses;
 
 namespace TaskManagementApplication.ApiControllers
 {
@@ -14,7 +16,7 @@ namespace TaskManagementApplication.ApiControllers
     {
 
         [HttpPost("run-task")]
-        public async Task<IActionResult> RunTask(WebhookEvent webhookEvent)
+        public async Task<IActionResult> RunTask(WebhookEvent webhookEvent, CancellationToken cancellationToken = default)
         {
             if (webhookEvent is null)
                 return BadRequest();
@@ -22,6 +24,8 @@ namespace TaskManagementApplication.ApiControllers
             var payload = webhookEvent.Payload;
             var taskPayload = payload.TaskPayload;
             var employee = taskPayload.Employee;
+
+
 
 
             //var nextTaskList = 
@@ -51,6 +55,8 @@ namespace TaskManagementApplication.ApiControllers
 
             var payload = stepWebhookEvent.Payload;
             var stepPayload = payload.TaskPayload;
+
+
             var userWorkflowConfig = stepPayload.UserWorkflowConfig;
             var firstActivityConfig = userWorkflowConfig.FirstActivityConfig;
             var currentPerformerGroup = firstActivityConfig.CurrentPerformerGroup;
@@ -61,56 +67,23 @@ namespace TaskManagementApplication.ApiControllers
                user: new User(currentPerformerUser.Id, currentPerformerUser.FirstName, currentPerformerUser.LastName),
                requiredFieldValues: firstActivityConfig.RequiredFieldValues
             );
-
-            NextActivityTransistionType toBeSavedNextAtivityTransitionType = NextActivityTransistionType.None;
-
-            switch (stepPayload.NextActivityTransistionType)
-            {
-                case (NextActivityTransistionType.None):
-                    {
-                        toBeSavedNextAtivityTransitionType = NextActivityTransistionType.None; //means this step Is with typeOf End
-                        break;
-                    }
-                case (NextActivityTransistionType.Normal):
-                    {
-                        toBeSavedNextAtivityTransitionType = NextActivityTransistionType.Normal; //means this step has only one next activity 
-                        break;
-                    }
-                case (NextActivityTransistionType.SelectByUser):
-                    {
-                        toBeSavedNextAtivityTransitionType = NextActivityTransistionType.SelectByUser;
-
-                        var elsaClientResponse = elsaClient.GetWorkflowInstanceInformation(payload.WorkflowInstanceId);
-
-                        //Todo: We should fetch next possible activities from stepWebhookEvent
-                        //Todo: We should ask user which next activity should be selected
-                        break;
-                    }
-                case (NextActivityTransistionType.SelectByLogic):
-                    {
-                        toBeSavedNextAtivityTransitionType = NextActivityTransistionType.SelectByLogic;
-                        var elsaClientResponse = elsaClient.GetWorkflowInstanceInformation(payload.WorkflowInstanceId);
-                        //Todo: We should fetch next possible activities from stepWebhookEvent
-                        //Todo: We should decide what is next activity on logic after fetching inputs of user
-                        break;
-                    }
-                default:
-                    {
-                        throw new ArgumentOutOfRangeException("No proper stepWebhookEvent with NextActivityTransistionType is passed.");
-                    }
-            }
+            
+            var nextElsaActivities = await FetchNextActivitiesFromElsa(payload.WorkflowInstanceId);
+            var denulledNextElsaActivities = nextElsaActivities!.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+            var concatenatedNextElsaActivities = string.Join("|", denulledNextElsaActivities.Select(x => x));
 
 
-
+            //todo: save task first
             var step = new Step
             {
                 ProcessId = payload.WorkflowInstanceId,
                 ExternalId = payload.TaskId,
                 Name = payload.TaskName,
                 Description = stepPayload.Description,
-                NextActivityTransistionType = toBeSavedNextAtivityTransitionType,
                 CreatedAt = DateTimeOffset.UtcNow,
-                UserWorkflowConfigSerialized = JsonSerializer.Serialize(UserWorkflowConfig)
+                UserWorkflowConfigSerialized = JsonSerializer.Serialize(UserWorkflowConfig),
+                NextElsaActivities = concatenatedNextElsaActivities,
+                Result = null
             };
 
 
@@ -120,6 +93,20 @@ namespace TaskManagementApplication.ApiControllers
             await dbContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+        private async Task<List<string?>?> FetchNextActivitiesFromElsa(string wfInstanceId)
+        {
+            var serializedActivityInstanceInfo = await elsaClient.GetWorkflowInstanceInformationAsync(wfInstanceId);
+            var activityInstanceInfo = JsonSerializer.Deserialize<ActivityInstanceInformation>(serializedActivityInstanceInfo);
+            var activityId = activityInstanceInfo!.WorkflowState!.Bookmarks!.OrderByDescending(bookmark => bookmark.CreatedAt).FirstOrDefault()!.ActivityId;
+
+            var serializedWorkflowDefInfo = await elsaClient.GetWorkflowDefinitionInformationAsync(activityInstanceInfo!.DefinitionId);
+            var wfDefInfo = JsonSerializer.Deserialize<WorkflowDefinitionInformation>(serializedWorkflowDefInfo);
+
+            var nextIfActivityId = wfDefInfo!.Root!.Connections!.FirstOrDefault(x => x.Source!.Activity == activityId)!.Target!.Activity;
+            var nextActivities = wfDefInfo!.Root!.Connections!.Where(x => x.Source!.Activity == nextIfActivityId).Select(connection => connection.Target!.Activity).ToList();
+            return nextActivities;
         }
     }
 }
