@@ -1,9 +1,12 @@
+using Elsa.Expressions.Helpers;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rts.Common;
 using System.Diagnostics;
 using System.Text.Json;
 using TaskManagementApplication.ApiControllers.ApiModels;
+using TaskManagementApplication.CommonModelsForSerilaizarioan;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Models;
 using TaskManagementApplication.Services;
@@ -23,36 +26,45 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
     }
 
     [HttpGet]
-    public async Task<IActionResult> FillForm(int stepId, CancellationToken cancellationToken)
+    public IActionResult FillForm(long stepId, CancellationToken cancellationToken)
     {
         var step = dbContext.Steps.Find(stepId);
 
         var userWorkflowConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step!.UserWorkflowConfigSerialized);
 
-        List<DynamicField> dynamicFields = new();
-        foreach (var requiredField in userWorkflowConfig!.FirstActivityConfig.RequiredFieldValues!)
-        {
-            DynamicField dynamicField = new()
-            {
-                Name = requiredField.Key,
-                Label = requiredField.Key,
-                //Type = requiredField.
-            };
-        }
 
         var model = new DynamicFormViewModel
         {
             StepId = stepId,
-            Fields = new List<DynamicField>
-            {
-                new DynamicField { Name = "TextValue", Label = "Text Field", Type = FieldType.String },
-                new DynamicField { Name = "IntValue", Label = "Integer", Type = FieldType.Int },
-                new DynamicField { Name = "DecimalValue", Label = "Price", Type = FieldType.Decimal },
-                new DynamicField { Name = "GuidValue", Label = "Reference ID", Type = FieldType.Guid },
-                new DynamicField { Name = "BoolValue", Label = "Is Active?", Type = FieldType.Boolean },
-                new DynamicField { Name = "SelectedOption", Label = "Category", Type = FieldType.Dropdown, Options = new List<string>{ "Option1", "Option2", "Option3" } }
-            }
+            Fields = new List<DynamicField>()
+
         };
+
+
+        foreach (var requiredField in userWorkflowConfig!.FirstActivityConfig.RequiredFieldValues!)
+        {
+            var (type, value) = FetchRequiredFieldData(requiredField.Value);
+            DynamicField dynamicField = new()
+            {
+                Name = requiredField.Key,
+                Label = requiredField.Key,
+                Type = type,
+                IsDiasabledOnView = true,
+            };
+            if ((int)dynamicField.Type > 8)
+            {
+                dynamicField.Options = new List<string>();
+                if (value is string[] stringValues)
+                {
+                    dynamicField.Options.AddRange(stringValues.ToList());
+                }
+            }
+            else
+            {
+                dynamicField.Value = value;
+            }
+            model.Fields.Add(dynamicField);
+        }
 
         return PartialView("_FillFormModal", model);
     }
@@ -92,7 +104,101 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
+    private (FieldType, object) FetchRequiredFieldData(object requiredField)
+    {
+        if (requiredField is not JsonElement jsonElement) throw new Exception("RequiredField Is not parsable to JsonElement.");
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        var requiredFieldValue = jsonElement.Deserialize<RequiredFieldValueType>(options);
 
+        FieldType type = FieldType.String;
+        object value = requiredFieldValue!.Value!;
+        switch (requiredFieldValue.Type)
+        {
+            case "decimal":
+                {
+                    type = FieldType.Decimal;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<decimal>();
+                    break;
+                }
+
+            case "long":
+                {
+                    type = FieldType.Long;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<long>();
+                    break;
+                }
+            case "int":
+                {
+                    type = FieldType.Int;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<int>();
+                    break;
+                }
+
+            case "short":
+                {
+                    type = FieldType.Short;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<short>();
+                    break;
+                }
+
+            case "bool":
+                {
+                    type = FieldType.Boolean;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<bool>();
+                    break;
+                }
+
+            case "guid":
+                {
+                    type = FieldType.Guid;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<Guid>();
+                    break;
+                }
+
+            case "datetime":
+                {
+                    type = FieldType.DateTime;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<DateTime>();
+                    break;
+                }
+
+            case "string":
+                {
+                    type = FieldType.String;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string>();
+                    break;
+                }
+
+            //todo: tobe removed
+            case "object":
+                {
+                    type = FieldType.Object;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<object>();
+                    break;
+                }
+
+            case "decimalarray":
+            case "longarray":
+            case "intarray":
+            case "shortarray":
+            case "boolarray":
+            case "guidarray":
+            case "dateTimearray":
+            case "stringarray":
+            //todo: tobe removed
+            case "objectarray":
+                {
+                    type = FieldType.Dropdown;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>();
+                    break;
+                }
+        }
+
+        return (type, value);
+    }
 
 
 }

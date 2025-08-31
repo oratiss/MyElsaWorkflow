@@ -56,22 +56,7 @@ namespace TaskManagementApplication.ApiControllers
             var payload = stepWebhookEvent.Payload;
             var stepPayload = payload.TaskPayload;
 
-
-            var userWorkflowConfig = stepPayload.UserWorkflowConfig;
-            var firstActivityConfig = userWorkflowConfig.FirstActivityConfig;
-            var currentPerformerGroup = firstActivityConfig.CurrentPerformerGroup;
-            var currentPerformerUser = firstActivityConfig.CurrentPerformerUser;
-
-            var UserWorkflowConfig = new UserActivityConfig(
-               performerGroup: new UserGroup(currentPerformerGroup.Id, currentPerformerGroup.Name),
-               user: new User(currentPerformerUser.Id, currentPerformerUser.FirstName, currentPerformerUser.LastName),
-               requiredFieldValues: firstActivityConfig.RequiredFieldValues
-            );
-            
-            var nextElsaActivities = await FetchNextActivitiesFromElsa(payload.WorkflowInstanceId);
-            var denulledNextElsaActivities = nextElsaActivities!.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-            var concatenatedNextElsaActivities = string.Join("|", denulledNextElsaActivities.Select(x => x));
-
+            string concatenatedNextElsaActivities = await PrepareNextElsaActivitiesToBeSaved(payload);
 
             //todo: save task first
             var step = new Step
@@ -81,18 +66,33 @@ namespace TaskManagementApplication.ApiControllers
                 Name = payload.TaskName,
                 Description = stepPayload.Description,
                 CreatedAt = DateTimeOffset.UtcNow,
-                UserWorkflowConfigSerialized = JsonSerializer.Serialize(UserWorkflowConfig),
+                UserWorkflowConfigSerialized = JsonSerializer.Serialize(stepPayload.UserWorkflowConfig),
                 NextElsaActivities = concatenatedNextElsaActivities,
-                Result = null
             };
 
-
+            //todo: to be analayzed later:
+            if (!step.IsFormFilled && !step.IsCompleted)
+            {
+                step.Result = null;
+            }
+            else
+            {
+                throw new Exception("Result should be indicated.");
+            }
 
 
             await dbContext.Steps.AddAsync(step);
             await dbContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+        private async Task<string> PrepareNextElsaActivitiesToBeSaved(StepWebhook payload)
+        {
+            var nextElsaActivities = await FetchNextActivitiesFromElsa(payload.WorkflowInstanceId);
+            var denulledNextElsaActivities = nextElsaActivities!.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+            var concatenatedNextElsaActivities = string.Join("|", denulledNextElsaActivities.Select(x => x));
+            return concatenatedNextElsaActivities;
         }
 
         private async Task<List<string?>?> FetchNextActivitiesFromElsa(string wfInstanceId)

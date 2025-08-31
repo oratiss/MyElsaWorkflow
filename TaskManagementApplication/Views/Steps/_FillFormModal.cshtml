@@ -12,21 +12,23 @@
     <div class="modal-body">
         @foreach (var field in Model.Fields)
         {
-            <div class="mb-3">
+            <div class="mb-4">
                 <label class="form-label">@field.Label</label>
 
                 @switch (field.Type)
                 {
-                    case FieldType.String:
-                        <input type="text" name="@field.Name" value="@field.Value" class="form-control" />
-                        break;
-
                     case FieldType.Int:
+                    case FieldType.Short:
+                    case FieldType.Long:
                         <input type="number" name="@field.Name" value="@field.Value" class="form-control" />
                         break;
 
                     case FieldType.Decimal:
                         <input type="number" step="0.01" name="@field.Name" value="@field.Value" class="form-control" />
+                        break;
+           
+                    case FieldType.String:
+                        <input type="text" name="@field.Name" value="@field.Value" class="form-control" />
                         break;
 
                     case FieldType.Guid:
@@ -39,6 +41,14 @@
                                    @(field.Value is bool b && b ? "checked" : "") />
                             <label class="form-check-label">@field.Label</label>
                         </div>
+                        break;
+
+                    case FieldType.DateTime:
+                        // Cast the value to DateTime and format it correctly for the input.
+                        var dateTimeValue = field.Value is DateTime dt
+                        ? dt.ToString("yyyy-MM-ddTHH:mm")
+                        : "";
+                        <input type="datetime-local" name="@field.Name" value="@dateTimeValue" class="form-control" />
                         break;
 
                     case FieldType.Dropdown:
