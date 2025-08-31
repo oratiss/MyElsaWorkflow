@@ -49,6 +49,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                 Name = requiredField.Key,
                 Label = requiredField.Key,
                 Type = type,
+                //todo: to be discussed with team mates
                 IsDiasabledOnView = true,
             };
             if ((int)dynamicField.Type > 8)
@@ -168,7 +169,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "string":
                 {
                     type = FieldType.String;
-                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string>();
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string>()!;
                     break;
                 }
 
@@ -176,7 +177,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "object":
                 {
                     type = FieldType.Object;
-                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<object>();
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<object>()!;
                     break;
                 }
 
@@ -192,7 +193,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "objectarray":
                 {
                     type = FieldType.Dropdown;
-                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>();
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>()!;
                     break;
                 }
         }
