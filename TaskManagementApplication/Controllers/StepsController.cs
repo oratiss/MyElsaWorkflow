@@ -1,4 +1,5 @@
 using Elsa.Expressions.Helpers;
+using FastEndpoints.Security;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,11 +27,11 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
     }
 
     [HttpGet]
-    public IActionResult FillForm(long stepId, CancellationToken cancellationToken)
+    public IActionResult Review(long stepId, CancellationToken cancellationToken)
     {
         var step = dbContext.Steps.Find(stepId);
 
-        var userWorkflowConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step!.UserWorkflowConfigSerialized);
+        var userWorkflowConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step!.UserWorkflowConfigSerialized)!;
 
 
         var model = new DynamicFormViewModel
@@ -40,8 +41,14 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
 
         };
 
+        //below is informative
+        PrepareAssignableGroups(userWorkflowConfig, model);
 
-        foreach (var requiredField in userWorkflowConfig!.FirstActivityConfig.RequiredFieldValues!)
+        PrepareCurrentPerfomerGroup(userWorkflowConfig, model);
+        
+        //PreparePerformerUser(userWorkflowConfig, model);
+
+        foreach (var requiredField in userWorkflowConfig!.ActivityConfig.RequiredFieldValues!)
         {
             var (type, value) = FetchRequiredFieldData(requiredField.Value);
             DynamicField dynamicField = new()
@@ -52,22 +59,88 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                 //todo: to be discussed with team mates
                 IsDiasabledOnView = true,
             };
-            if ((int)dynamicField.Type > 8)
+            if ((int)dynamicField.Type == 10)
             {
-                dynamicField.Options = new List<string>();
                 if (value is string[] stringValues)
                 {
-                    dynamicField.Options.AddRange(stringValues.ToList());
+                    dynamicField.Value = stringValues;
                 }
             }
             else
             {
-                dynamicField.Value = value;
+                if ((int)dynamicField.Type == 9)
+                {
+                    dynamicField.Options = new List<string>();
+                    if (value is string[] stringValues)
+                    {
+                        dynamicField.Options.AddRange(stringValues.ToList());
+                    }
+                }
+                else
+                {
+                    dynamicField.Value = value;
+                }
             }
+            
             model.Fields.Add(dynamicField);
+
         }
 
-        return PartialView("_FillFormModal", model);
+        return PartialView("_ReviewModal", model);
+    }
+
+    private static void PrepareAssignableGroups(UserWorkflowConfig userWorkflowConfig, DynamicFormViewModel model)
+    {
+        DynamicField assignableUserGroup = new()
+        {
+            Name = "AssignableUserGroups",
+            Label = "AssignableUserGroups",
+            Type = FieldType.CheckBoxList,
+            IsDiasabledOnView = true,
+            Value = new()
+        };
+        var values = new List<string>();
+        foreach (var userGroup in userWorkflowConfig!.AssignableUserGroups)
+        {
+            values.Add(userGroup.Name);
+        }
+        assignableUserGroup.Value = values.ToArray();
+        model.Fields.Add(assignableUserGroup);
+    }
+
+    private void PrepareCurrentPerfomerGroup(UserWorkflowConfig userWorkflowConfig, DynamicFormViewModel model)
+    {
+        DynamicField performerGroup = new()
+        {
+            Name = "CurrentPerformerUserGroup",
+            Label = "CurrentPerformerUserGroup",
+            Type = FieldType.String,
+            IsDiasabledOnView = true,
+            Value = new()
+        };
+        if (userWorkflowConfig.ActivityConfig.CurrentPerformerGroup is not null)
+        {
+            performerGroup.Value = userWorkflowConfig.ActivityConfig.CurrentPerformerGroup!.Name;
+        }
+        else
+        {
+            performerGroup = new()
+            {
+                Name = "CurrentPerformerUserGroup",
+                Label = "CurrentPerformerUserGroup",
+                Type = FieldType.Dropdown,
+                IsDiasabledOnView = false,
+                Value = new()
+            };
+            var values = new List<string>();
+            foreach (var userGroup in userWorkflowConfig!.AssignableUserGroups)
+            {
+                values.Add(userGroup.Name);
+            }
+            performerGroup.Value = values.ToArray();
+        }
+
+        model.Fields.Add(performerGroup);
     }
 
     [HttpPost]
@@ -189,10 +262,14 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "guidarray":
             case "dateTimearray":
             case "stringarray":
-            //todo: tobe removed
-            case "objectarray":
                 {
                     type = FieldType.Dropdown;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>()!;
+                    break;
+                }
+            case "objectarray":
+                {
+                    type = FieldType.CheckBoxList;
                     value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>()!;
                     break;
                 }

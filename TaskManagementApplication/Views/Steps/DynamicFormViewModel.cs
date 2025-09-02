@@ -17,7 +17,8 @@
         DateTime,
         String,
         Object,
-        Dropdown
+        Dropdown,
+        CheckBoxList
     }
 
     public class DynamicField

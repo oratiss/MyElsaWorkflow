@@ -10,8 +10,8 @@ namespace TaskManagementApplication.ApiControllers.ApiModels
         [JsonPropertyName("assignableUserGroups")]
         public UserGroupRequest[] AssignableUserGroups { get; set; } = null!;
 
-        [JsonPropertyName("firstActivityConfig")]
-        public UserActivityConfigRequest FirstActivityConfig { get; set; } = null!;
+        [JsonPropertyName("activityConfig")]
+        public UserActivityConfigRequest ActivityConfig { get; set; } = null!;
     }
 
     public class UserActivityConfigRequest
@@ -30,11 +30,11 @@ namespace TaskManagementApplication.ApiControllers.ApiModels
         }
 
         [JsonPropertyName("currentPerformerGroup")]
-        public UserGroupRequest CurrentPerformerGroup { get; set; }
+        public UserGroupRequest? CurrentPerformerGroup { get; set; }
 
 
         [JsonPropertyName("currentPerformerUser")]
-        public UserRequest CurrentPerformerUser { get; set; }
+        public UserRequest? CurrentPerformerUser { get; set; }
 
         [JsonPropertyName("requiredFieldValues")]
         public RequiredFieldValueRequest[]? RequiredFieldValues { get; set; }

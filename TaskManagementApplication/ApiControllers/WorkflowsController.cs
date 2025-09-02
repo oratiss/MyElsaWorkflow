@@ -51,15 +51,15 @@ namespace TaskManagementApplication.ApiControllers
             }
 
             var assignableUserGroups = request!.AssignableUserGroups.Adapt<UserGroup[]>();
-            var currentPerformerGroup = request.FirstActivityConfig.CurrentPerformerGroup.Adapt<UserGroup>();
-            User currentPerfromerUser = AdaptUser(request);
+            var currentPerformerGroup = request.ActivityConfig.CurrentPerformerGroup.Adapt<UserGroup?>();
+            User? currentPerfromerUser = AdaptUser(request);
 
             UserWorkflowConfig workflowConfig = new()
             {
                 AssignableUserGroups = assignableUserGroups,
-                FirstActivityConfig = new
+                ActivityConfig = new
                 (
-                    currentPerformerGroup, currentPerfromerUser, processedData, request.FirstActivityConfig.PossibleRequiredData
+                    currentPerformerGroup, currentPerfromerUser, processedData, request.ActivityConfig.PossibleRequiredData
                 )
             };
 
@@ -68,11 +68,15 @@ namespace TaskManagementApplication.ApiControllers
             return Ok();
         }
 
-        private User AdaptUser(RunWorkflowRequest request)
+        private User? AdaptUser(RunWorkflowRequest request)
         {
-            var userId = request.FirstActivityConfig.CurrentPerformerUser.Id;
-            var firstName = request.FirstActivityConfig.CurrentPerformerUser.FirstName;
-            var lastName = request.FirstActivityConfig.CurrentPerformerUser.LastName;
+            if (request.ActivityConfig.CurrentPerformerUser == null)
+            {
+                return null;
+            }
+            var userId = request.ActivityConfig.CurrentPerformerUser.Id!;
+            var firstName = request.ActivityConfig.CurrentPerformerUser.FirstName;
+            var lastName = request.ActivityConfig.CurrentPerformerUser.LastName;
             var currentPerfromerUser = new User(userId, firstName, lastName);
             return currentPerfromerUser;
         }
@@ -82,7 +86,7 @@ namespace TaskManagementApplication.ApiControllers
             try
             {
                 processedData = new Dictionary<string, object>();
-                foreach (var field in runWorkflowRequest!.FirstActivityConfig.RequiredFieldValues!)
+                foreach (var field in runWorkflowRequest!.ActivityConfig.RequiredFieldValues!)
                 {
                     object parsedValue;
                     var type = field.Type.ToLower();

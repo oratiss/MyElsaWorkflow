@@ -32,15 +32,15 @@
                         {
                             <button class="btn btn-warning"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#fillFormModal"
-                                    data-url="@Url.Action("FillForm", "Steps", new { stepId = step.Id })">
-                                Fill Form
+                                    data-bs-target="#reviewFormModal"
+                                    data-url="@Url.Action("Review", "Steps", new { stepId = step.Id })">
+                                Review
                             </button>
                         }
                         else
                         {
-                            <form asp-action="FillForm">
-                                <button type="submit" class="btn disabled">Fill Form</button>
+                            <form asp-action="Review">
+                                <button type="submit" class="btn disabled">Review</button>
                             </form>
                         }
                     </td>
@@ -59,7 +59,7 @@
 
 
 <!-- Empty Modal Shell -->
-<div class="modal fade" id="fillFormModal" tabindex="-1">
+<div class="modal fade" id="reviewFormModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <!-- content loaded here -->
@@ -69,7 +69,7 @@
 
 @section Scripts {
     <script>
-        const fillFormModal = document.getElementById('fillFormModal');
+        const fillFormModal = document.getElementById('reviewFormModal');
         fillFormModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const url = button.getAttribute('data-url');
