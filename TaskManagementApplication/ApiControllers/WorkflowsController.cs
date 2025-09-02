@@ -8,6 +8,7 @@ using TaskManagementApplication.CommonModelsForSerilaizarioan;
 using TaskManagementApplication.Data;
 using TaskManagementApplication.Entities;
 using TaskManagementApplication.Services;
+using YamlDotNet.Core.Tokens;
 
 namespace TaskManagementApplication.ApiControllers
 {
@@ -96,7 +97,7 @@ namespace TaskManagementApplication.ApiControllers
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
-                                Value = decimal.Parse(field.Value) 
+                                Value = decimal.Parse(field.Value)
                             };
                             break;
 
@@ -165,6 +166,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "decimalarray":
+                        case "decimalarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -173,6 +175,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "longarray":
+                        case "longarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -181,6 +184,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "intarray":
+                        case "intarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -189,6 +193,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "shortarray":
+                        case "shortarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -197,6 +202,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "boolarray":
+                        case "boolarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -205,6 +211,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "guidarray":
+                        case "guidarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -215,6 +222,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "dateTimearray":
+                        case "dateTimearray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -223,6 +231,7 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "stringarray":
+                        case "stringarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
                                 Type = type,
@@ -231,13 +240,106 @@ namespace TaskManagementApplication.ApiControllers
                             break;
 
                         case "objectarray":
-                            parsedValue = new RequiredFieldValueType()
+                        case "objectarray-checkboxlistselectall":
                             {
-                                Type = type,
-                                Value = field.Value.Adapt<object[]>()
-                            };
-                            break;
 
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = field.Value.Adapt<object[]>()
+                                };
+                                break;
+                            }
+                        case "decimalarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<decimal>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "longarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<long>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "intarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<int>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "shortarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<short>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "boolarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<bool>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "guidarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<Guid>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "dateTimearray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<DateTime>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "stringarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<string>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
+                        case "objectarray-checkboxlistselectmany":
+                            {
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<object>[]>(field.Value);
+                                parsedValue = new RequiredFieldValueType()
+                                {
+                                    Type = type,
+                                    Value = pairItems
+                                };
+                                break;
+                            }
                         default:
                             // Handle unknown or unsupported types
                             return (flowControl: false, value: BadRequest($"Unsupported type: {field.Type}"));
@@ -256,5 +358,5 @@ namespace TaskManagementApplication.ApiControllers
     }
 
 
-   
+
 }

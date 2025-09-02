@@ -18,7 +18,8 @@
         String,
         Object,
         Dropdown,
-        CheckBoxList
+        CheckBoxListAll,
+        CheckBoxListMany
     }
 
     public class DynamicField
@@ -31,4 +32,6 @@
 
         public bool IsDiasabledOnView { get; set; }
     }
+
+
 }

@@ -45,7 +45,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         PrepareAssignableGroups(userWorkflowConfig, model);
 
         PrepareCurrentPerfomerGroup(userWorkflowConfig, model);
-        
+
         //PreparePerformerUser(userWorkflowConfig, model);
 
         foreach (var requiredField in userWorkflowConfig!.ActivityConfig.RequiredFieldValues!)
@@ -59,6 +59,13 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                 //todo: to be discussed with team mates
                 IsDiasabledOnView = true,
             };
+            if ((int)dynamicField.Type == 11)
+            {
+                if (value is TypeCheckPair<object>[] typeCheckPairs)
+                {
+                    dynamicField.Value = typeCheckPairs;
+                }
+            }
             if ((int)dynamicField.Type == 10)
             {
                 if (value is string[] stringValues)
@@ -81,7 +88,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                     dynamicField.Value = value;
                 }
             }
-            
+
             model.Fields.Add(dynamicField);
 
         }
@@ -95,7 +102,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         {
             Name = "AssignableUserGroups",
             Label = "AssignableUserGroups",
-            Type = FieldType.CheckBoxList,
+            Type = FieldType.CheckBoxListAll,
             IsDiasabledOnView = true,
             Value = new()
         };
@@ -260,17 +267,41 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "shortarray":
             case "boolarray":
             case "guidarray":
-            case "dateTimearray":
+            case "datetimearray":
             case "stringarray":
+            case "objectarray":
                 {
                     type = FieldType.Dropdown;
                     value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>()!;
                     break;
                 }
-            case "objectarray":
+            case "decimalarray-checkboxlistselectall":
+            case "longarray-checkboxlistselectall":
+            case "intarray-checkboxlistselectall":
+            case "shortarray-checkboxlistselectall":
+            case "boolarray-checkboxlistselectall":
+            case "guidarray-checkboxlistselectall":
+            case "datetimearray-checkboxlistselectall":
+            case "stringarray-checkboxlistselectall":
+            case "objectarray-checkboxlistselectall":
+            
                 {
-                    type = FieldType.CheckBoxList;
+                    type = FieldType.CheckBoxListAll;
                     value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<string[]>()!;
+                    break;
+                }
+            case "decimalarray-checkboxlistselectmany":
+            case "longarray-checkboxlistselectmany":
+            case "intarray-checkboxlistselectmany":
+            case "shortarray-checkboxlistselectmany":
+            case "boolarray-checkboxlistselectmany":
+            case "guidarray-checkboxlistselectmany":
+            case "datetimearray-checkboxlistselectmany":
+            case "stringarray-checkboxlistselectmany":
+            case "objectarray-checkboxlistselectmany":
+                {
+                    type = FieldType.CheckBoxListMany;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>()!;
                     break;
                 }
         }
