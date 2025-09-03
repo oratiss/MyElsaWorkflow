@@ -106,7 +106,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = decimal.Parse(field.Value)
                             };
                             break;
-
                         case "long":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -114,7 +113,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = long.Parse(field.Value)
                             };
                             break;
-
                         case "int":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -122,7 +120,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = int.Parse(field.Value)
                             };
                             break;
-
                         case "short":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -130,7 +127,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = short.Parse(field.Value)
                             };
                             break;
-
                         case "bool":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -138,7 +134,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = bool.Parse(field.Value)
                             };
                             break;
-
                         case "guid":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -146,7 +141,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = new Guid(field.Value.ToString())
                             };
                             break;
-
                         case "datetime":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -154,7 +148,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = DateTime.Parse(field.Value)
                             };
                             break;
-
                         case "string":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -162,7 +155,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value
                             };
                             break;
-
                         case "object":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -171,7 +163,6 @@ namespace TaskManagementApplication.ApiControllers
                             };
                             break;
 
-                        case "decimalarray":
                         case "decimalarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -179,8 +170,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<decimal[]>()
                             };
                             break;
-
-                        case "longarray":
                         case "longarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -188,8 +177,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<long[]>()
                             };
                             break;
-
-                        case "intarray":
                         case "intarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -197,8 +184,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<int[]>()
                             };
                             break;
-
-                        case "shortarray":
                         case "shortarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -206,8 +191,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<short[]>()
                             };
                             break;
-
-                        case "boolarray":
                         case "boolarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -215,8 +198,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<bool[]>()
                             };
                             break;
-
-                        case "guidarray":
                         case "guidarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -226,8 +207,6 @@ namespace TaskManagementApplication.ApiControllers
                                    .ToArray()
                             };
                             break;
-
-                        case "dateTimearray":
                         case "dateTimearray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -235,8 +214,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<DateTime[]>()
                             };
                             break;
-
-                        case "stringarray":
                         case "stringarray-checkboxlistselectall":
                             parsedValue = new RequiredFieldValueType()
                             {
@@ -244,8 +221,6 @@ namespace TaskManagementApplication.ApiControllers
                                 Value = field.Value.Adapt<string[]>()
                             };
                             break;
-
-                        case "objectarray":
                         case "objectarray-checkboxlistselectall":
                             {
 
@@ -256,6 +231,8 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+
+                        case "decimalarray":
                         case "decimalarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<decimal>[]>(field.Value, JsonSerializerOptions);
@@ -266,6 +243,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "longarray":
                         case "longarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<long>[]>(field.Value, JsonSerializerOptions);
@@ -276,6 +254,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "intarray":
                         case "intarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<int>[]>(field.Value, JsonSerializerOptions);
@@ -286,6 +265,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "shortarray":
                         case "shortarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<short>[]>(field.Value, JsonSerializerOptions);
@@ -296,6 +276,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "boolarray":
                         case "boolarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<bool>[]>(field.Value, JsonSerializerOptions);
@@ -306,6 +287,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "guidarray":
                         case "guidarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<Guid>[]>(field.Value, JsonSerializerOptions);
@@ -316,6 +298,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "dateTimearray":
                         case "dateTimearray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<DateTime>[]>(field.Value, JsonSerializerOptions);
@@ -326,6 +309,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "stringarray":
                         case "stringarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<string>[]>(field.Value, JsonSerializerOptions);
@@ -336,6 +320,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+                        case "objectarray":
                         case "objectarray-checkboxlistselectmany":
                             {
                                 var pairItems = JsonSerializer.Deserialize<TypeCheckPair<object>[]>(field.Value, JsonSerializerOptions);
@@ -346,6 +331,7 @@ namespace TaskManagementApplication.ApiControllers
                                 };
                                 break;
                             }
+
                         default:
                             // Handle unknown or unsupported types
                             return (flowControl: false, value: BadRequest($"Unsupported type: {field.Type}"));
