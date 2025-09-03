@@ -301,7 +301,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "objectarray-checkboxlistselectmany":
                 {
                     type = FieldType.CheckBoxListMany;
-                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>()!;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>(options)!;
                     break;
                 }
         }

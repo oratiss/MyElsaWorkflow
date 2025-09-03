@@ -16,6 +16,12 @@ namespace TaskManagementApplication.ApiControllers
     [ApiController]
     public class WorkflowsController(IElsaClient elsaClient, TaskManagementDbContext dbContext) : ControllerBase
     {
+        private JsonSerializerOptions JsonSerializerOptions => new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+        };
+
+
         //todo: to be completed later
         [HttpGet]
         public List<WorkflowEntities> Index()
@@ -252,7 +258,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "decimalarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<decimal>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<decimal>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -262,7 +268,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "longarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<long>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<long>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -272,7 +278,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "intarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<int>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<int>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -282,7 +288,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "shortarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<short>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<short>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -292,7 +298,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "boolarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<bool>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<bool>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -302,7 +308,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "guidarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<Guid>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<Guid>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -312,7 +318,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "dateTimearray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<DateTime>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<DateTime>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -322,7 +328,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "stringarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<string>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<string>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
@@ -332,7 +338,7 @@ namespace TaskManagementApplication.ApiControllers
                             }
                         case "objectarray-checkboxlistselectmany":
                             {
-                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<object>[]>(field.Value);
+                                var pairItems = JsonSerializer.Deserialize<TypeCheckPair<object>[]>(field.Value, JsonSerializerOptions);
                                 parsedValue = new RequiredFieldValueType()
                                 {
                                     Type = type,
