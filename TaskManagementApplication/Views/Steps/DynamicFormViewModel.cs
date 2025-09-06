@@ -4,6 +4,8 @@
     {
         public long StepId { get; set; }
         public List<DynamicField> Fields { get; set; } = new();
+
+        public string OriginModelSeriallized { get; set; } = null!;
     }
 
     public enum FieldType

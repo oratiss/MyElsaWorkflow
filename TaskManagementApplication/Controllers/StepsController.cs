@@ -6,14 +6,20 @@ using System.Text.Json;
 using TaskManagementApplication.ApiControllers.ApiModels;
 using TaskManagementApplication.CommonModelsForSerilaizarioan;
 using TaskManagementApplication.Data;
+using TaskManagementApplication.Entities;
 using TaskManagementApplication.Models;
 using TaskManagementApplication.Services;
 using TaskManagementApplication.Views.Steps;
+using YamlDotNet.Core.Tokens;
 
 namespace TaskManagementApplication.Controllers;
 
 public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsaClient, ILogger<StepsController> logger) : Controller
 {
+    private JsonSerializerOptions Options => new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -26,15 +32,206 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
     [HttpGet]
     public IActionResult Review(long stepId, CancellationToken cancellationToken)
     {
-        var step = dbContext.Steps.Find(stepId);
+        var step = dbContext.Steps.Find(stepId)!;
 
+        DynamicFormViewModel model = PrepareReviewViewModel(step);
+
+        return PartialView("_ReviewModal", model);
+    }
+
+    [HttpPost]
+    public IActionResult Review(DynamicFormViewModel reviewModel, CancellationToken cancellationToken)
+    {
+        var step = dbContext.Steps.Find(reviewModel.StepId)!;
+
+        //todo add a code to fetch wf activities from TMA databse and check none-frozen fields to change in code below (converting from dynamicFormViewModel to steps's wfConfiguration field).
+
+        Dictionary<string, object>? requiredFields = new();
+        foreach (DynamicField dynamicfield in reviewModel.Fields)
+        {
+            if (!dynamicfield.IsDiasabledOnView)
+            {
+                var typeName = nameof(dynamicfield.Type).Split(".").Last().ToLower();
+                switch (dynamicfield.Type)
+                {
+                    case FieldType.Int:
+                        {
+                            requiredFields.Add(typeName, (int)dynamicfield.Value!);
+                            break;
+                        }
+                    case FieldType.Long:
+                        {
+                            requiredFields.Add(typeName, (long)dynamicfield.Value!);
+                            break;
+                        }
+                    case FieldType.Short:
+                        {
+                            requiredFields.Add(typeName, (short)dynamicfield.Value!);
+                            break;
+                        }
+                    case FieldType.Decimal:
+                        {
+                            requiredFields.Add(typeName, (decimal)dynamicfield.Value!);
+                            break;
+                        }
+                    case FieldType.Guid:
+                        {
+                            requiredFields.Add(typeName, new Guid(dynamicfield.Value!.ToString()!));
+                            break;
+                        }
+                    case FieldType.Boolean:
+                        {
+                            requiredFields.Add(typeName, (bool)dynamicfield.Value!);
+                            break;
+                        }
+                    case FieldType.DateTime:
+                        {
+                            requiredFields.Add(typeName, (DateTime)dynamicfield.Value!);
+                            break;
+                        }
+                    case FieldType.String:
+                        {
+                            requiredFields.Add(typeName, dynamicfield.Value!.ToString()!);
+                            break;
+                        }
+                    case FieldType.Object:
+                        requiredFields.Add(typeName, dynamicfield.Value!);
+                        break;
+                    case FieldType.Dropdown:
+                        {
+
+                            var pairs = new List<TypeCheckPair<object>>();
+                            foreach (var item in dynamicfield.Options!)
+                            {
+                                TypeCheckPair<object> pair = new();
+     
+                                if (pair.Value == dynamicfield.Value)
+                                {
+                                    pair.IsChecked = true;
+                                }
+
+                                var exisitingWfConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step.UserWorkflowConfigSerialized, Options);
+                                var reqField = exisitingWfConfig!.ActivityConfig.RequiredFieldValues!.FirstOrDefault(x => x.Key.ToLower() == dynamicfield.Name.ToLower());
+                                var reqFieldType = (reqField.Value as RequiredFieldValueType[])!.First().Type;
+
+                                switch (reqFieldType.ToLower())
+                                {
+                                    case "decimalarray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is decimal v) ? v : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "longarray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is long v) ? v : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "intarray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is int v) ? v : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "shortarray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is short v) ? v : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "boolarray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is bool v) ? v : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "guidarray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is Guid v) ? new Guid(v.ToString()) : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "datetimearray":
+                                        {
+                                            pair.Value = (dynamicfield.Value is DateTime v) ? v : dynamicfield.Value!;
+                                            break;
+                                        }
+                                    case "stringarray":
+                                        {
+                                            pair.Value = dynamicfield.Value!.ToString()!;
+                                            break;
+                                        }
+                                    case "objectarray":
+                                        {
+                                            pair.Value = dynamicfield.Value!;
+                                            break;
+                                        }
+                                }
+
+                                pairs.Add(pair);
+                            }
+
+
+
+                            requiredFields.Add(dynamicfield.Name, pairs);
+                        }
+                        break;
+                    case FieldType.CheckBoxListAll:
+                        break;
+                    case FieldType.CheckBoxListMany:
+                        break;
+                }
+            }
+        }
+
+
+        DynamicFormViewModel model = PrepareReviewViewModel(step);
+
+
+        return PartialView("_ReviewModal", model);
+    }
+
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Complete(CompleteStepRequest request, CancellationToken cancellationToken)
+    {
+        var step = dbContext.Steps.FirstOrDefault(x => x.Id == request.StepId);
+
+        if (step is null) return NotFound();
+
+
+        //todo: fetch result
+        //var result = request.Result ?? task.Result; // 
+
+        await elsaClient.ReportTaskCompletedAsync(step.ExternalId, new(), cancellationToken);
+
+        step.IsCompleted = true;
+        step.CompletedAt = DateTimeOffset.Now;
+
+        dbContext.Steps.Update(step);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+
+    private DynamicFormViewModel PrepareReviewViewModel(Step step)
+    {
         var userWorkflowConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step!.UserWorkflowConfigSerialized)!;
-
-
         var model = new DynamicFormViewModel
         {
-            StepId = stepId,
-            Fields = new List<DynamicField>()
+            StepId = step.Id,
+            Fields = new List<DynamicField>(),
+            OriginModelSeriallized = step!.UserWorkflowConfigSerialized //todo: to be removed after debugging
 
         };
 
@@ -77,8 +274,8 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                     dynamicField.Options = new List<string>();
                     if (value is TypeCheckPair<object>[] pairs)
                     {
-                        dynamicField.Options.AddRange(pairs.Select(x=>x.Value.ToString()).ToList()!);
-                        dynamicField.Value = pairs.SingleOrDefault(x=>x.IsChecked)?.Value.ToString();
+                        dynamicField.Options.AddRange(pairs.Select(x => x.Value.ToString()).ToList()!);
+                        dynamicField.Value = pairs.SingleOrDefault(x => x.IsChecked)?.Value.ToString();
                     }
                 }
                 else
@@ -91,71 +288,18 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
 
         }
 
-        return PartialView("_ReviewModal", model);
-    }
-
-    [HttpPost]
-    public IActionResult Review(DynamicFormViewModel reviewModel, CancellationToken cancellationToken)
-    {
-        var step = dbContext.Steps.Find(reviewModel.StepId);
-        
-        
-        
-        DynamicFormViewModel model = new();
-
-
-
-
-        return PartialView("_ReviewModal", model);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Complete(CompleteStepRequest request, CancellationToken cancellationToken)
-    {
-        var step = dbContext.Steps.FirstOrDefault(x => x.Id == request.StepId);
-
-        if (step is null) return NotFound();
-
-
-        //todo: fetch result
-        //var result = request.Result ?? task.Result; // 
-
-        await elsaClient.ReportTaskCompletedAsync(step.ExternalId, new(), cancellationToken);
-
-        step.IsCompleted = true;
-        step.CompletedAt = DateTimeOffset.Now;
-
-        dbContext.Steps.Update(step);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        return RedirectToAction("Index");
-    }
-
-    [HttpGet]
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return model;
     }
 
     private (FieldType, object) FetchRequiredFieldData(object requiredField)
     {
         if (requiredField is not JsonElement jsonElement) throw new Exception("RequiredField Is not parsable to JsonElement.");
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
-        var requiredFieldValue = jsonElement.Deserialize<RequiredFieldValueType>(options);
 
-        FieldType type = FieldType.String;
-        object value = requiredFieldValue!.Value!;
-        switch (requiredFieldValue.Type)
+        var requiredFieldValue = jsonElement.Deserialize<RequiredFieldValueType>(Options);
+
+        FieldType type;
+        object value;
+        switch (requiredFieldValue!.Type)
         {
             case "decimal":
                 {
@@ -211,7 +355,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                     value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<object>()!;
                     break;
                 }
-            
+
             case "decimalarray":
             case "longarray":
             case "intarray":
@@ -223,7 +367,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "objectarray":
                 {
                     type = FieldType.Dropdown;
-                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>(options)!;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>(Options)!;
                     break;
                 }
 
@@ -253,9 +397,11 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             case "objectarray-checkboxlistselectmany":
                 {
                     type = FieldType.CheckBoxListMany;
-                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>(options)!;
+                    value = ((JsonElement)requiredFieldValue!.Value!).Deserialize<TypeCheckPair<object>[]>(Options)!;
                     break;
                 }
+            default:
+                throw new ArgumentOutOfRangeException("Type is out of range!.");
         }
 
         return (type, value);
