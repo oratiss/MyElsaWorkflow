@@ -1,5 +1,7 @@
+using Antlr4.Runtime.Misc;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using Rts.Common;
 using System.Diagnostics;
 using System.Text.Json;
@@ -99,82 +101,208 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                         break;
                     case FieldType.Dropdown:
                         {
-
-                            var pairs = new List<TypeCheckPair<object>>();
+                            List<TypeCheckPair<object>> pairs = new List<TypeCheckPair<object>>();
                             foreach (var item in dynamicfield.Options!)
                             {
-                                TypeCheckPair<object> pair = new();
-     
-                                if (pair.Value == dynamicfield.Value)
-                                {
-                                    pair.IsChecked = true;
-                                }
 
                                 var exisitingWfConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step.UserWorkflowConfigSerialized, Options);
                                 var reqField = exisitingWfConfig!.ActivityConfig.RequiredFieldValues!.FirstOrDefault(x => x.Key.ToLower() == dynamicfield.Name.ToLower());
-                                var reqFieldType = (reqField.Value as RequiredFieldValueType[])!.First().Type;
+                                var reqFieldType = (reqField.Value as RequiredFieldValueType)!.Type;
 
+                                TypeCheckPair<object> pair = new();
                                 switch (reqFieldType.ToLower())
                                 {
+
                                     case "decimalarray":
                                         {
-                                            pair.Value = (dynamicfield.Value is decimal v) ? v : dynamicfield.Value!;
+                                            pair.Value = Convert.ToDecimal(item);
                                             break;
                                         }
                                     case "longarray":
                                         {
-                                            pair.Value = (dynamicfield.Value is long v) ? v : dynamicfield.Value!;
+                                            pair.Value = Convert.ToInt64(item);
                                             break;
                                         }
                                     case "intarray":
                                         {
-                                            pair.Value = (dynamicfield.Value is int v) ? v : dynamicfield.Value!;
+                                            pair.Value = Convert.ToInt32(item);
                                             break;
                                         }
                                     case "shortarray":
                                         {
-                                            pair.Value = (dynamicfield.Value is short v) ? v : dynamicfield.Value!;
+                                            pair.Value = Convert.ToInt16(item);
                                             break;
                                         }
                                     case "boolarray":
                                         {
-                                            pair.Value = (dynamicfield.Value is bool v) ? v : dynamicfield.Value!;
+                                            pair.Value = Convert.ToBoolean(item);
                                             break;
                                         }
                                     case "guidarray":
                                         {
-                                            pair.Value = (dynamicfield.Value is Guid v) ? new Guid(v.ToString()) : dynamicfield.Value!;
+                                            pair.Value = new Guid(item);
                                             break;
                                         }
                                     case "datetimearray":
                                         {
-                                            pair.Value = (dynamicfield.Value is DateTime v) ? v : dynamicfield.Value!;
+                                            pair.Value = Convert.ToDateTime(item);
                                             break;
                                         }
                                     case "stringarray":
                                         {
-                                            pair.Value = dynamicfield.Value!.ToString()!;
+                                            pair.Value = item;
                                             break;
                                         }
                                     case "objectarray":
                                         {
-                                            pair.Value = dynamicfield.Value!;
+                                            pair.Value = item;
                                             break;
                                         }
                                 }
-
+                                if (item == dynamicfield.Value!.ToString()) pair.IsChecked = true;
                                 pairs.Add(pair);
                             }
 
-
-
-                            requiredFields.Add(dynamicfield.Name, pairs);
+                            requiredFields.Add(dynamicfield.Name, pairs.ToArray());
+                            break;
                         }
-                        break;
                     case FieldType.CheckBoxListAll:
-                        break;
+                        {
+                            List<TypeCheckPair<object>> pairs = new List<TypeCheckPair<object>>();
+                            foreach (var item in (string[])dynamicfield.Value!)
+                            {
+
+                                var exisitingWfConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step.UserWorkflowConfigSerialized, Options);
+                                var reqField = exisitingWfConfig!.ActivityConfig.RequiredFieldValues!.FirstOrDefault(x => x.Key.ToLower() == dynamicfield.Name.ToLower());
+                                var reqFieldType = (reqField.Value as RequiredFieldValueType)!.Type;
+
+                                TypeCheckPair<object> pair = new();
+                                switch (reqFieldType.ToLower())
+                                {
+
+                                    case "decimalarray":
+                                        {
+                                            pair.Value = Convert.ToDecimal(item);
+                                            break;
+                                        }
+                                    case "longarray":
+                                        {
+                                            pair.Value = Convert.ToInt64(item);
+                                            break;
+                                        }
+                                    case "intarray":
+                                        {
+                                            pair.Value = Convert.ToInt32(item);
+                                            break;
+                                        }
+                                    case "shortarray":
+                                        {
+                                            pair.Value = Convert.ToInt16(item);
+                                            break;
+                                        }
+                                    case "boolarray":
+                                        {
+                                            pair.Value = Convert.ToBoolean(item);
+                                            break;
+                                        }
+                                    case "guidarray":
+                                        {
+                                            pair.Value = new Guid(item);
+                                            break;
+                                        }
+                                    case "datetimearray":
+                                        {
+                                            pair.Value = Convert.ToDateTime(item);
+                                            break;
+                                        }
+                                    case "stringarray":
+                                        {
+                                            pair.Value = item;
+                                            break;
+                                        }
+                                    case "objectarray":
+                                        {
+                                            pair.Value = item;
+                                            break;
+                                        }
+                                }
+                                pair.Value = true;
+                                pairs.Add(pair);
+                            }
+
+                            requiredFields.Add(dynamicfield.Name, pairs.ToArray());
+                            break;
+
+
+                        }
                     case FieldType.CheckBoxListMany:
-                        break;
+                        {
+                            var exisitingWfConfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step.UserWorkflowConfigSerialized, Options);
+                            var reqField = exisitingWfConfig!.ActivityConfig.RequiredFieldValues!.FirstOrDefault(x => x.Key.ToLower() == dynamicfield.Name.ToLower());
+                            var reqFieldType = (reqField.Value as RequiredFieldValueType)!.Type;
+
+                            switch (reqFieldType.ToLower())
+                            {
+                                case "decimalarray-checkboxlistselectmany":
+                                    {
+                                        var decimalPairs = (List<TypeCheckPair<decimal>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, decimalPairs.ToArray());
+                                        break;
+                                    }
+                                case "longarray-checkboxlistselectmany":
+                                    {
+                                        var longPairs = (List<TypeCheckPair<long>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, longPairs.ToArray());
+                                        break;
+                                    }
+                                case "intarray-checkboxlistselectmany":
+                                    {
+                                        var intPairs = (List<TypeCheckPair<int>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, intPairs.ToArray());
+                                        break;
+                                    }
+                                case "shortarray-checkboxlistselectmany":
+                                    {
+                                        var shortPairs = (List<TypeCheckPair<short>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, shortPairs.ToArray());
+                                        break;
+                                    }
+                                case "boolarray-checkboxlistselectmany":
+                                    {
+                                        var boolPairs = (List<TypeCheckPair<bool>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, boolPairs.ToArray());
+                                        break;
+                                    }
+                                case "guidarray-checkboxlistselectmany":
+                                    {
+                                        var guidPairs = (List<TypeCheckPair<Guid>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, guidPairs.ToArray());
+                                        break;
+                                    }
+                                case "datetimearray-checkboxlistselectmany":
+                                    {
+                                        var dateTimePairs = (List<TypeCheckPair<DateTime>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, dateTimePairs.ToArray());
+                                        break;
+                                    }
+                                case "stringarray-checkboxlistselectmany":
+                                    {
+                                        var stringPairs = (List<TypeCheckPair<string>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, stringPairs.ToArray());
+                                        break;
+                                    }
+                                case "objectarray-checkboxlistselectmany":
+                                    {
+                                        var objectPairs = (List<TypeCheckPair<object>>)dynamicfield.Value!;
+                                        requiredFields.Add(dynamicfield.Name, objectPairs.ToArray());
+                                        break;
+                                    }
+                            }
+
+                            break;
+                        }
+                    default:
+                        throw new NotSupportedException();
                 }
             }
         }
@@ -231,7 +359,6 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         {
             StepId = step.Id,
             Fields = new List<DynamicField>(),
-            OriginModelSeriallized = step!.UserWorkflowConfigSerialized //todo: to be removed after debugging
 
         };
 

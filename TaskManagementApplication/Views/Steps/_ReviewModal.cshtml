@@ -4,7 +4,7 @@
 
 <form asp-action="Review" method="post">
     @Html.HiddenFor(m => m.StepId)
-    @Html.HiddenFor(m => m.OriginModelSeriallized)
+
 
     <div class="modal-header">
         <h5 class="modal-title">Review Step Requirements</h5>
@@ -14,13 +14,18 @@
     <div class="modal-body">
         <div class="row">
             @{
-
                 var halfIndex = Model.Fields.Count / 2;
             }
             <div class="col-12 col-md-6">
-                @for (var i = 0; i <= halfIndex; i++)
+                @for (var i = 0; i <= halfIndex && i < Model.Fields.Count; i++)
                 {
                     var field = Model.Fields[i];
+
+                    <!-- Hidden fields for model binding -->
+                    @Html.HiddenFor(m => m.Fields[i].Name)
+                    @Html.HiddenFor(m => m.Fields[i].Label)
+                    @Html.HiddenFor(m => m.Fields[i].Type)
+                    @Html.HiddenFor(m => m.Fields[i].IsDiasabledOnView)
 
                     <div class="mb-6">
                         <label class="form-label">@field.Label</label>
@@ -30,41 +35,41 @@
                             case FieldType.Int:
                             case FieldType.Short:
                             case FieldType.Long:
-                                <input type="number" name="@field.Name" value="@field.Value" class="form-control" />
+                                <input type="number" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Decimal:
-                                <input type="number" step="0.01" name="@field.Name" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="number" step="0.01" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.String:
-                                <input type="text" name="@field.Name" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="text" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Guid:
-                                <input type="text" name="@field.Name" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="text" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Boolean:
                                 <div class="form-check">
-                                    <input type="checkbox" name="@field.Name" class="form-check-input" disabled="@field.IsDiasabledOnView"
+                                    <input type="checkbox" name="Fields[@i].Value" value="true" class="form-check-input" disabled="@field.IsDiasabledOnView"
                                            @(field.Value is bool b && b ? "checked" : "") />
+                                    <input type="hidden" name="Fields[@i].Value" value="false" />
                                     <label class="form-check-label">@field.Label</label>
                                 </div>
                                 break;
 
                             case FieldType.DateTime:
-                                // Cast the value to DateTime and format it correctly for the input.
                                 var dateTimeValue = field.Value is DateTime dt
                                 ? dt.ToString("yyyy-MM-ddTHH:mm")
                                 : "";
-                                <input type="datetime-local" name="@field.Name" value="@dateTimeValue" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="datetime-local" name="Fields[@i].Value" value="@dateTimeValue" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Dropdown:
                                 @if (field.IsDiasabledOnView)
                                 {
-                                    <select name="@field.Name" class="form-select" disabled="@field.IsDiasabledOnView">
+                                    <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
                                         @foreach (var option in field.Options ?? new List<string>())
                                         {
                                             <option value="@option" selected="@(option == (field.Value?.ToString() ?? ""))">@option</option>
@@ -73,7 +78,7 @@
                                 }
                                 else
                                 {
-                                    <select name="@field.Name" class="form-select" disabled="@field.IsDiasabledOnView">
+                                    <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
                                         @foreach (var valueItem in (string[])field.Value!)
                                         {
                                             @if (valueItem == "EveryOne")
@@ -83,7 +88,6 @@
                                             else
                                             {
                                                 <option value="@valueItem">@valueItem</option>
-
                                             }
                                         }
                                     </select>
@@ -97,12 +101,12 @@
                                     <div class="form-check mb-2">
                                         <input class="form-check-input"
                                                type="checkbox"
-                                               name="SelectedItems"
+                                               name="Fields[@i].SelectedItems[@j]"
                                                value="@stringValueItems[j]"
-                                               id="checkbox_@j"
+                                               id="checkbox_@(i)_@j"
                                                checked
                                                disabled="@field.IsDiasabledOnView" />
-                                        <label class="form-check-label" for="checkbox_@j">
+                                        <label class="form-check-label" for="checkbox_@(i)_@j">
                                             @stringValueItems[j]
                                         </label>
                                     </div>
@@ -110,19 +114,21 @@
                                 break;
 
                             case FieldType.CheckBoxListMany:
-                                var stringValuePairs = (TypeCheckPair<object>[])field.Value!;
-                                @for (int k = 0; k < stringValuePairs.Length; k++)
+                                var objValuePairs = (TypeCheckPair<object>[])field.Value!;
+                                @for (int k = 0; k < objValuePairs.Length; k++)
                                 {
                                     <div class="form-check mb-2">
                                         <input class="form-check-input"
                                                type="checkbox"
-                                               name="SelectedItems"
-                                               value="@stringValuePairs[k].Value"
-                                               id="checkbox_@k"
-                                               checked="@stringValuePairs[k].IsChecked"
+                                               name="Fields[@i].CheckBoxPairs[@k].IsChecked"
+                                               value="true"
+                                               id="checkbox_@(i)_@k"
+                                               checked="@objValuePairs[k].IsChecked"
                                                disabled="@field.IsDiasabledOnView" />
-                                        <label class="form-check-label" for="checkbox_@k">
-                                            @stringValuePairs[k].Value
+                                        <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].Value" value="@objValuePairs[k].Value" />
+                                        <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].IsChecked" value="false" />
+                                        <label class="form-check-label" for="checkbox_@(i)_@k">
+                                            @objValuePairs[k].Value
                                         </label>
                                     </div>
                                 }
@@ -132,9 +138,15 @@
                 }
             </div>
             <div class="col-12 col-md-6">
-                @for (var i = halfIndex + 1; i <= Model.Fields.Count - 1; i++)
+                @for (var i = halfIndex + 1; i < Model.Fields.Count; i++)
                 {
                     var field = Model.Fields[i];
+
+                    <!-- Hidden fields for model binding -->
+                    @Html.HiddenFor(m => m.Fields[i].Name)
+                    @Html.HiddenFor(m => m.Fields[i].Label)
+                    @Html.HiddenFor(m => m.Fields[i].Type)
+                    @Html.HiddenFor(m => m.Fields[i].IsDiasabledOnView)
 
                     <div class="mb-6">
                         <label class="form-label">@field.Label</label>
@@ -144,44 +156,42 @@
                             case FieldType.Int:
                             case FieldType.Short:
                             case FieldType.Long:
-                                <input type="number" name="@field.Name" value="@field.Value" class="form-control" />
+                                <input type="number" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Decimal:
-                                <input type="number" step="0.01" name="@field.Name" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="number" step="0.01" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.String:
-                                <input type="text" name="@field.Name" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="text" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Guid:
-                                <input type="text" name="@field.Name" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="text" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Boolean:
                                 <div class="form-check">
-                                    <input type="checkbox" name="@field.Name" class="form-check-input" disabled="@field.IsDiasabledOnView"
+                                    <input type="checkbox" name="Fields[@i].Value" value="true" class="form-check-input" disabled="@field.IsDiasabledOnView"
                                            @(field.Value is bool b && b ? "checked" : "") />
+                                    <input type="hidden" name="Fields[@i].Value" value="false" />
                                     <label class="form-check-label">@field.Label</label>
                                 </div>
                                 break;
 
                             case FieldType.DateTime:
-                                // Cast the value to DateTime and format it correctly for the input.
                                 var dateTimeValue = field.Value is DateTime dt
                                 ? dt.ToString("yyyy-MM-ddTHH:mm")
                                 : "";
-                                <input type="datetime-local" name="@field.Name" value="@dateTimeValue" class="form-control" disabled="@field.IsDiasabledOnView" />
+                                <input type="datetime-local" name="Fields[@i].Value" value="@dateTimeValue" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
                             case FieldType.Dropdown:
-                                <select name="@field.Name" class="form-select" disabled="@field.IsDiasabledOnView">
-                                    @{
-                                        foreach (var option in field.Options ?? new List<string>())
-                                        {
-                                            <option value="@option" selected="@(option == (field.Value?.ToString() ?? ""))">@option</option>
-                                        }
+                                <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
+                                    @foreach (var option in field.Options ?? new List<string>())
+                                    {
+                                        <option value="@option" selected="@(option == (field.Value?.ToString() ?? ""))">@option</option>
                                     }
                                 </select>
                                 break;
@@ -193,12 +203,12 @@
                                     <div class="form-check mb-2">
                                         <input class="form-check-input"
                                                type="checkbox"
-                                               name="SelectedItems"
+                                               name="Fields[@i].SelectedItems[@j]"
                                                value="@stringValueItems[j]"
-                                               id="checkbox_@j"
+                                               id="checkbox_@(i)_@j"
                                                checked
                                                disabled="@field.IsDiasabledOnView" />
-                                        <label class="form-check-label" for="checkbox_@j">
+                                        <label class="form-check-label" for="checkbox_@(i)_@j">
                                             @stringValueItems[j]
                                         </label>
                                     </div>
@@ -206,19 +216,21 @@
                                 break;
 
                             case FieldType.CheckBoxListMany:
-                                var stringValuePairs = (TypeCheckPair<object>[])field.Value!;
-                                @for (int k = 0; k < stringValuePairs.Length; k++)
+                                var objValuePairs = (TypeCheckPair<object>[])field.Value!;
+                                @for (int k = 0; k < objValuePairs.Length; k++)
                                 {
                                     <div class="form-check mb-2">
                                         <input class="form-check-input"
                                                type="checkbox"
-                                               name="SelectedItems"
-                                               value="@stringValuePairs[k].Value"
-                                               id="checkbox_@k"
-                                               checked="@stringValuePairs[k].IsChecked"
+                                               name="Fields[@i].CheckBoxPairs[@k].IsChecked"
+                                               value="true"
+                                               id="checkbox_@(i)_@k"
+                                               checked="@objValuePairs[k].IsChecked"
                                                disabled="@field.IsDiasabledOnView" />
-                                        <label class="form-check-label" for="checkbox_@k">
-                                            @stringValuePairs[k].Value
+                                        <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].Value" value="@objValuePairs[k].Value" />
+                                        <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].IsChecked" value="false" />
+                                        <label class="form-check-label" for="checkbox_@(i)_@k">
+                                            @objValuePairs[k].Value
                                         </label>
                                     </div>
                                 }
