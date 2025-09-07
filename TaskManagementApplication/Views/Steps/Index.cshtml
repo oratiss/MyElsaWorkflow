@@ -2,12 +2,10 @@
 @{
     ViewData["Title"] = "Steps Management Page";
 }
-
 <div class="text-center">
     <h1 class="display-4">Steps</h1>
     <p>Please complete the following steps.</p>
 </div>
-
 <div class="container">
     <table class="table table-bordered table-hover">
         <thead class="table-light">
@@ -23,7 +21,6 @@
             @foreach (var step in Model.Steps)
             {
                 <tr>
-
                     <th scope="row">@step.Id</th>
                     <td>@step.Name</td>
                     <td>@step.Description</td>
@@ -45,19 +42,18 @@
                         }
                     </td>
                     <td>
-                        <form asp-action="Complete">
-                            <input type="hidden" name="StepId" value="@step.Id" />
-                            <button type="submit" class="btn btn-primary">Complete</button>
-                        </form>
+                        <button class="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#completeStepModal"
+                                data-url="@Url.Action("Complete", "Steps", new { stepId = step.Id })">
+                            Complete
+                        </button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-
 </div>
-
-
 <!-- Empty Modal Shell -->
 <div class="modal fade" id="reviewFormModal" tabindex="-1">
     <div class="modal-dialog">
@@ -66,19 +62,47 @@
         </div>
     </div>
 </div>
-
+<!-- Empty Modal Shell -->
+<div class="modal fade" id="completeStepModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- content loaded here -->
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
-        const fillFormModal = document.getElementById('reviewFormModal');
-        fillFormModal.addEventListener('show.bs.modal', function (event) {
+        // Review Modal Handler
+        const reviewFormModal = document.getElementById('reviewFormModal');
+        reviewFormModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const url = button.getAttribute('data-url');
-            const modalContent = fillFormModal.querySelector('.modal-content');
-
+            const modalContent = reviewFormModal.querySelector('.modal-content');
             fetch(url)
                 .then(res => res.text())
                 .then(html => {
                     modalContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading review modal:', error);
+                    modalContent.innerHTML = '<div class="modal-body"><p>Error loading content. Please try again.</p></div>';
+                });
+        });
+
+        // Complete Modal Handler
+        const completeStepModal = document.getElementById('completeStepModal');
+        completeStepModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const url = button.getAttribute('data-url');
+            const modalContent = completeStepModal.querySelector('.modal-content');
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    modalContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading complete modal:', error);
+                    modalContent.innerHTML = '<div class="modal-body"><p>Error loading content. Please try again.</p></div>';
                 });
         });
     </script>

@@ -1,0 +1,68 @@
+﻿@using Rts.Common
+@using System.Text.Json
+@using TaskManagementApplication.Views.Steps
+@model TaskManagementApplication.Views.Steps.CompleteViewModel
+
+<form asp-action="Complete" method="post">
+    @Html.HiddenFor(m => m.StepId)
+    
+    <div class="modal-header">
+        <h5 class="modal-title">What is your decision?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+   
+    <div class="modal-body">
+        <div class="row">
+            @{
+                var buttonCount = Model.NextButtons?.Count;
+            }
+            @if (buttonCount is not null && buttonCount == 2)
+            {
+                for (var i = 1; i <= 2; i++)
+                {
+                    var activityName = Model.NextButtons[i - 1]!.ActivityName;
+                    <div class="col-12 col-md-6">
+                        <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
+                    </div>
+                }
+            }
+            else if (buttonCount is not null && buttonCount == 3)
+            {
+                for (var i = 1; i <= 3; i++)
+                {
+                    var activityName = Model.NextButtons[i - 1]!.ActivityName;
+                    <div class="col-12 col-md-4">
+                        <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
+                    </div>
+                }
+            }
+            else if (buttonCount is not null && buttonCount == 4)
+            {
+                for (var i = 1; i <= 4; i++)
+                {
+                    var activityName = Model.NextButtons[i - 1]!.ActivityName;
+                    <div class="col-12 col-md-3">
+                        <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
+                    </div>
+                }
+            }
+            else
+            {
+                @if (Model.NextButtons != null)
+                {
+                    for (var i = 1; i <= Model.NextButtons.Count; i++)
+                    {
+                        var activityName = Model.NextButtons[i - 1]!.ActivityName;
+                        <div class="col-12">
+                            <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Elsa.Workflows.Helpers;
+using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rts.Common;
 using System.Text.Json;
@@ -105,9 +107,18 @@ namespace TaskManagementApplication.ApiControllers
             var serializedWorkflowDefInfo = await elsaClient.GetWorkflowDefinitionInformationAsync(activityInstanceInfo!.DefinitionId);
             var wfDefInfo = JsonSerializer.Deserialize<WorkflowDefinitionInformation>(serializedWorkflowDefInfo);
 
+            var activityInfos = wfDefInfo!.Root!.Activities.Adapt<List<ActivityInfo>>();
+
             var nextIfActivityId = wfDefInfo!.Root!.Connections!.FirstOrDefault(x => x.Source!.Activity == activityId)!.Target!.Activity;
             var nextActivities = wfDefInfo!.Root!.Connections!.Where(x => x.Source!.Activity == nextIfActivityId).Select(connection => connection.Target!.Activity).ToList();
-            return nextActivities;
+
+            List<string?> result = new();
+            foreach (var activity in nextActivities)
+            {
+                var activityName = activityInfos.FirstOrDefault(x => x.Id == activity)?.Name;
+                result.Add($"{activity}--{activityName}");
+            }
+            return result;
         }
     }
 }

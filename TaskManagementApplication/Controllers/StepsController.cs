@@ -42,6 +42,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Review(DynamicFormViewModel reviewModel, CancellationToken cancellationToken)
     {
         var step = dbContext.Steps.Find(reviewModel.StepId)!;
@@ -314,6 +315,37 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         return PartialView("_ReviewModal", model);
     }
 
+
+    [HttpGet]
+    public IActionResult Complete(long stepId, CancellationToken cancellationToken)
+    {
+        var step = dbContext.Steps.FirstOrDefault(x => x.Id == stepId);
+
+        if (step is null) return NotFound();
+
+        List<NextStepButton> nextStepButtons = new();
+        if (!string.IsNullOrWhiteSpace(step.NextElsaActivities))
+        {
+            nextStepButtons = step.NextElsaActivities.Split("|").ToList().Select(x =>
+            {
+                NextStepButton nextStepButton = new()
+                {
+                    ActivityId = x.Split("--").First(),
+                    ActivityName = x.Split("--").Last(),
+                };
+                return nextStepButton;
+            }).ToList();
+        }
+
+        CompleteViewModel model = new()
+        {
+            StepId = step.Id,
+            NextButtons = nextStepButtons
+        };
+
+
+        return PartialView("_CompleteModal", model);
+    }
 
 
     [HttpPost]

@@ -99,6 +99,13 @@ namespace TaskManagementApplication.Services.Models.ElsaResponses
         public List<Connection>? Connections { get; set; }
     }
 
+    public class ActivityInfo
+    {
+        public string? Id { get; set; }
+
+        public string? Name { get; set; }
+    }
+
     public class Source
     {
         [JsonPropertyName("activity")]
