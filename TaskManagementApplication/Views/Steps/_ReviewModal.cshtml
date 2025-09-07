@@ -1,4 +1,5 @@
 ﻿@using Rts.Common
+@using System.Text.Json
 @using TaskManagementApplication.Views.Steps
 @model TaskManagementApplication.Views.Steps.DynamicFormViewModel
 
@@ -50,89 +51,55 @@
                                 <input type="text" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
-                            case FieldType.Boolean:
+                            @*                        case FieldType.Boolean:
                                 <div class="form-check">
                                     <input type="checkbox" name="Fields[@i].Value" value="true" class="form-check-input" disabled="@field.IsDiasabledOnView"
-                                           @(field.Value is bool b && b ? "checked" : "") />
+                                           @(Convert.ToBoolean(@field.Value) is bool b && b  ? "checked" : "") />
                                     <input type="hidden" name="Fields[@i].Value" value="false" />
                                     <label class="form-check-label">@field.Label</label>
                                 </div>
                                 break;
 
                             case FieldType.DateTime:
-                                var dateTimeValue = field.Value is DateTime dt
+                                var dateTimeValue = Convert.ToDateTime(field.Value) is DateTime dt
                                 ? dt.ToString("yyyy-MM-ddTHH:mm")
                                 : "";
                                 <input type="datetime-local" name="Fields[@i].Value" value="@dateTimeValue" class="form-control" disabled="@field.IsDiasabledOnView" />
-                                break;
+                                break; *@
 
                             case FieldType.Dropdown:
-                                @if (field.IsDiasabledOnView)
                                 {
+
                                     <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
                                         @foreach (var option in field.Options ?? new List<string>())
                                         {
                                             <option value="@option" selected="@(option == (field.Value?.ToString() ?? ""))">@option</option>
                                         }
                                     </select>
+                                    break;
                                 }
-                                else
-                                {
-                                    <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
-                                        @foreach (var valueItem in (string[])field.Value!)
-                                        {
-                                            @if (valueItem == "EveryOne")
-                                            {
-                                                <option value="@valueItem" selected="true">@valueItem</option>
-                                            }
-                                            else
-                                            {
-                                                <option value="@valueItem">@valueItem</option>
-                                            }
-                                        }
-                                    </select>
-                                }
-                                break;
-
-                            case FieldType.CheckBoxListAll:
-                                var stringValueItems = (string[])field.Value!;
-                                @for (int j = 0; j < stringValueItems.Length; j++)
-                                {
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="Fields[@i].SelectedItems[@j]"
-                                               value="@stringValueItems[j]"
-                                               id="checkbox_@(i)_@j"
-                                               checked
-                                               disabled="@field.IsDiasabledOnView" />
-                                        <label class="form-check-label" for="checkbox_@(i)_@j">
-                                            @stringValueItems[j]
-                                        </label>
-                                    </div>
-                                }
-                                break;
-
                             case FieldType.CheckBoxListMany:
-                                var objValuePairs = (TypeCheckPair<object>[])field.Value!;
-                                @for (int k = 0; k < objValuePairs.Length; k++)
                                 {
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="Fields[@i].CheckBoxPairs[@k].IsChecked"
-                                               value="true"
-                                               id="checkbox_@(i)_@k"
-                                               checked="@objValuePairs[k].IsChecked"
-                                               disabled="@field.IsDiasabledOnView" />
-                                        <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].Value" value="@objValuePairs[k].Value" />
-                                        <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].IsChecked" value="false" />
-                                        <label class="form-check-label" for="checkbox_@(i)_@k">
-                                            @objValuePairs[k].Value
-                                        </label>
-                                    </div>
+                                    var objValuePairs = JsonSerializer.Deserialize<TypeCheckPair<object>[]>(field.Value!, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                                    @for (int k = 0; k < objValuePairs.Length; k++)
+                                    {
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="Fields[@i].CheckBoxPairs[@k].IsChecked"
+                                                   value="true"
+                                                   id="checkbox_@(i)_@k"
+                                                   checked="@objValuePairs[k].IsChecked"
+                                                   disabled="@field.IsDiasabledOnView" />
+                                            <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].Value" value="@objValuePairs[k].Value" />
+                                            <input type="hidden" name="Fields[@i].CheckBoxPairs[@k].IsChecked" value="false" />
+                                            <label class="form-check-label" for="checkbox_@(i)_@k">
+                                                @objValuePairs[k].Value
+                                            </label>
+                                        </div>
+                                    }
+                                    break;
                                 }
-                                break;
                         }
                     </div>
                 }
@@ -171,7 +138,7 @@
                                 <input type="text" name="Fields[@i].Value" value="@field.Value" class="form-control" disabled="@field.IsDiasabledOnView" />
                                 break;
 
-                            case FieldType.Boolean:
+                            @*                        case FieldType.Boolean:
                                 <div class="form-check">
                                     <input type="checkbox" name="Fields[@i].Value" value="true" class="form-check-input" disabled="@field.IsDiasabledOnView"
                                            @(field.Value is bool b && b ? "checked" : "") />
@@ -185,38 +152,22 @@
                                 ? dt.ToString("yyyy-MM-ddTHH:mm")
                                 : "";
                                 <input type="datetime-local" name="Fields[@i].Value" value="@dateTimeValue" class="form-control" disabled="@field.IsDiasabledOnView" />
-                                break;
+                                break; *@
 
                             case FieldType.Dropdown:
-                                <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
-                                    @foreach (var option in field.Options ?? new List<string>())
-                                    {
-                                        <option value="@option" selected="@(option == (field.Value?.ToString() ?? ""))">@option</option>
-                                    }
-                                </select>
-                                break;
-
-                            case FieldType.CheckBoxListAll:
-                                var stringValueItems = (string[])field.Value!;
-                                @for (int j = 0; j < stringValueItems.Length; j++)
                                 {
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="Fields[@i].SelectedItems[@j]"
-                                               value="@stringValueItems[j]"
-                                               id="checkbox_@(i)_@j"
-                                               checked
-                                               disabled="@field.IsDiasabledOnView" />
-                                        <label class="form-check-label" for="checkbox_@(i)_@j">
-                                            @stringValueItems[j]
-                                        </label>
-                                    </div>
-                                }
-                                break;
 
+                                    <select name="Fields[@i].Value" class="form-select" disabled="@field.IsDiasabledOnView">
+                                        @foreach (var option in field.Options ?? new List<string>())
+                                        {
+                                            <option value="@option" selected="@(option == (field.Value?.ToString() ?? ""))">@option</option>
+                                        }
+                                    </select>
+                                    break;
+                                }
                             case FieldType.CheckBoxListMany:
-                                var objValuePairs = (TypeCheckPair<object>[])field.Value!;
+
+                                var objValuePairs = JsonSerializer.Deserialize<TypeCheckPair<object>[]>(field.Value!, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                                 @for (int k = 0; k < objValuePairs.Length; k++)
                                 {
                                     <div class="form-check mb-2">

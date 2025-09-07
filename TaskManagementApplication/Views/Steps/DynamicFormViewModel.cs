@@ -1,4 +1,6 @@
-﻿namespace TaskManagementApplication.Views.Steps
+﻿using Rts.Common;
+
+namespace TaskManagementApplication.Views.Steps
 {
     public class DynamicFormViewModel
     {
@@ -28,11 +30,14 @@
         public string Name { get; set; } = default!;
         public string Label { get; set; } = default!;
         public FieldType Type { get; set; }
-        public object? Value { get; set; }  // for pre-filling
+        public string? Value { get; set; }  // for pre-filling
         public List<string>? Options { get; set; } // only for dropdown
+
+        public List<TypeCheckPair<string>>? CheckBoxPairs { get; set; }
 
         public bool IsDiasabledOnView { get; set; }
     }
+
 
 
 }
