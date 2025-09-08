@@ -4,8 +4,7 @@
     {
         public long StepId { get; set; }
         public List<NextStepButton>? NextButtons { get; set; }
-
-        public NextStepButton? SelectedNextButton { get; set; }
+        public string? SelectedNextButtonName { get; set; } // Changed to string
     }
 
     public class NextStepButton

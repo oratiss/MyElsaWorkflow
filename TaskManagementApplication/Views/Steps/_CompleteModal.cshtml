@@ -5,63 +5,37 @@
 
 <form asp-action="Complete" method="post">
     @Html.HiddenFor(m => m.StepId)
-    
+
     <div class="modal-header">
         <h5 class="modal-title">What is your decision?</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
     </div>
-   
+
     <div class="modal-body">
         <div class="row">
-            @{
-                var buttonCount = Model.NextButtons?.Count;
-            }
-            @if (buttonCount is not null && buttonCount == 2)
+            @if (Model.NextButtons?.Any() == true)
             {
-                for (var i = 1; i <= 2; i++)
+                var buttonCount = Model.NextButtons.Count;
+                var colClass = buttonCount switch
                 {
-                    var activityName = Model.NextButtons[i - 1]!.ActivityName;
-                    <div class="col-12 col-md-6 text-center">
-                        <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
+                    2 => "col-12 col-md-6",
+                    3 => "col-12 col-md-4",
+                    4 => "col-12 col-md-3",
+                    _ => "col-12"
+                };
+
+                @foreach (var button in Model.NextButtons)
+                {
+                    <div class="@colClass text-center">
+                        <button type="submit" name="SelectedNextButtonName" value="@button.ActivityName" class="btn btn-light">
+                            @button.ActivityName
+                        </button>
                     </div>
-                }
-            }
-            else if (buttonCount is not null && buttonCount == 3)
-            {
-                for (var i = 1; i <= 3; i++)
-                {
-                    var activityName = Model.NextButtons[i - 1]!.ActivityName;
-                    <div class="col-12 col-md-4 text-center">
-                        <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
-                    </div>
-                }
-            }
-            else if (buttonCount is not null && buttonCount == 4)
-            {
-                for (var i = 1; i <= 4; i++)
-                {
-                    var activityName = Model.NextButtons[i - 1]!.ActivityName;
-                    <div class="col-12 col-md-3 text-center">
-                        <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
-                    </div>
-                }
-            }
-            else
-            {
-                @if (Model.NextButtons != null)
-                {
-                    for (var i = 1; i <= Model.NextButtons.Count; i++)
-                    {
-                        var activityName = Model.NextButtons[i - 1]!.ActivityName;
-                        <div class="col-12 text-center">
-                            <button type="submit" name="SelectedActivity" value="@activityName" class="btn btn-light">@activityName</button>
-                        </div>
-                    }
                 }
             }
         </div>
     </div>
-    
+
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
     </div>

@@ -317,7 +317,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
 
 
     [HttpGet]
-    public IActionResult Complete(long stepId, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteAsync(long stepId, CancellationToken cancellationToken)
     {
         var step = dbContext.Steps.FirstOrDefault(x => x.Id == stepId);
 
@@ -343,6 +343,18 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
             NextButtons = nextStepButtons
         };
 
+        //if only we have end for next activities we should pass directly to post action of complete
+        if (model.NextButtons.Count==1 && model.NextButtons[0].ActivityName == "end")
+        {
+            var postModel = new CompleteViewModel
+            {
+                StepId = stepId,
+                NextButtons = nextStepButtons,
+                SelectedNextButtonName = "end"
+            };
+
+            return await Complete(postModel, cancellationToken);
+        }
 
         return PartialView("_CompleteModal", model);
     }
@@ -350,16 +362,30 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Complete(CompleteStepRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Complete(CompleteViewModel request, CancellationToken cancellationToken)
     {
         var step = dbContext.Steps.FirstOrDefault(x => x.Id == request.StepId);
-
         if (step is null) return NotFound();
 
+        List<NextStepButton> nextStepButtons = new();
+        if (!string.IsNullOrWhiteSpace(step.NextElsaActivities))
+        {
+            nextStepButtons = step.NextElsaActivities.Split("|").ToList().Select(x =>
+            {
+                NextStepButton nextStepButton = new()
+                {
+                    ActivityId = x.Split("--").First(),
+                    ActivityName = x.Split("--").Last(),
+                };
+                return nextStepButton;
+            }).ToList();
+        }
+        
+        var selectedNextStepId = nextStepButtons.FirstOrDefault(x=>x.ActivityName==request.SelectedNextButtonName)?.ActivityId;
 
-        //todo: fetch result
-        //var result = request.Result ?? task.Result; // 
 
+        //todo: prepare the config object which should be passed to the elsa
+        
         await elsaClient.ReportTaskCompletedAsync(step.ExternalId, new(), cancellationToken);
 
         step.IsCompleted = true;
