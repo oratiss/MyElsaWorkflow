@@ -116,7 +116,14 @@ namespace TaskManagementApplication.ApiControllers
             foreach (var activity in nextActivities)
             {
                 var activityName = activityInfos.FirstOrDefault(x => x.Id == activity)?.Name;
-                result.Add($"{activity}--{activityName}");
+                if (activity == "end")
+                {
+                    result.Add($"{activity}--{activity}");
+                }
+                else
+                {
+                    result.Add($"{activity}--{activityName}");
+                }
             }
             return result;
         }

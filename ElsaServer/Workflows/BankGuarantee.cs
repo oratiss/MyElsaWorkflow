@@ -3,9 +3,12 @@ using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
+using Elsa.Workflows.Management.Activities.SetOutput;
+using Elsa.Workflows.Runtime.Activities;
 using ElsaServer.Activities;
 using ElsaServer.Models;
 using Rts.Common;
+using System.Text.Json;
 using Connection = Elsa.Workflows.Activities.Flowchart.Models.Connection;
 using Endpoint = Elsa.Workflows.Activities.Flowchart.Models.Endpoint;
 
@@ -46,11 +49,14 @@ namespace ElsaServer.Workflows
 
             //Create Step with runtime evaluation using delegates
 
-            var stepActivity = new Step(
-                  taskName: "Create Bank Guarantee Document",
-                  null,
-                  null,
-                  description: $"This step is for creating a \"Bank Guarantee document\""
+            //var stepActivity = new Step(
+            //      taskName: "Create Bank Guarantee Document",
+            //      null,
+            //      null,
+            //      description: $"This step is for creating a \"Bank Guarantee document\""
+            //  )
+            var stepActivity = new RunTask(
+                  "Create Bank Guarantee Document"
               )
             {
                 Id = "createBankGuarantee",
@@ -61,30 +67,21 @@ namespace ElsaServer.Workflows
                     var wfConfig = userWorkflowConfig.Get(context)!;
                     resultDict.Add("UserWorkflowConfig", wfConfig);
                     resultDict.Add("Description", "Create Bank Guarantee");
-                    
-                    //nextActivityTransistionType = NextActivityTransistionType.SelectByLogic;
-                    //resultDict.Add("NextActivityTransistionType", nextActivityTransistionType);
-
                     return resultDict;
                 }),
             };
 
-            var setResultActivity = new SetVariable
+            var setDecisionActivity = new TafahomDecision
             {
-                Id = "setResult",
-                Variable = previousRunTasKResultAsInput,
-                Value = new(context =>
-                {
-                    var input = context.GetWorkflowExecutionContext().Input;
-                    var runTaskInput = input["RunTaskInput"];
-                    var valueToBeSet = runTaskInput.ConvertTo<ResumedTaskResult>();
-                    return valueToBeSet;
-                })
+                Id= "TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM",
+                Name = "TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM"
+                
             };
 
             var endActivity = new End
             {
-                Id = "end"
+                Id = "end",
+                Name = "end"
             };
 
             builder.Root = new Flowchart
@@ -94,7 +91,7 @@ namespace ElsaServer.Workflows
                     startActivity,
                     setConfigActivity,
                     stepActivity,
-                    setResultActivity,
+                    setDecisionActivity,
                     endActivity
                 },
 
@@ -129,25 +126,26 @@ namespace ElsaServer.Workflows
                         }
                     },
                     // Connect Step to SetResult
-                    new Connection
-                    {
-                        Source = new Endpoint
-                        {
-                            Activity = stepActivity,
-                            Port = "Done"
-                        },
-                        Target = new Endpoint
-                        {
-                            Activity = setResultActivity,
-                            Port = "In"
-                        }
-                    },
+                    new Connection(stepActivity, setDecisionActivity),
+                    //new Connection
+                    //{
+                    //    Source = new Endpoint
+                    //    {
+                    //        Activity = stepActivity,
+                    //        Port = "Done"
+                    //    },
+                    //    Target = new Endpoint
+                    //    {
+                    //        Activity = setDecisionActivity,
+                    //        Port = "In"
+                    //    }
+                    //},
                     // Connect SetResult to End
                     new Connection
                     {
                         Source = new Endpoint
                         {
-                            Activity = setResultActivity,
+                            Activity = setDecisionActivity,
                             Port = "Done"
                         },
                         Target = new Endpoint

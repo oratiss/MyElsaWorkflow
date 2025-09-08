@@ -344,7 +344,7 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         };
 
         //if only we have end for next activities we should pass directly to post action of complete
-        if (model.NextButtons.Count==1 && model.NextButtons[0].ActivityName == "end")
+        if (model.NextButtons.Count == 1 && model.NextButtons[0].ActivityName == "end")
         {
             var postModel = new CompleteViewModel
             {
@@ -355,8 +355,12 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
 
             return await Complete(postModel, cancellationToken);
         }
+        else
+        {
+            return PartialView("_CompleteModal", model);
 
-        return PartialView("_CompleteModal", model);
+        }
+
     }
 
 
@@ -380,13 +384,14 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
                 return nextStepButton;
             }).ToList();
         }
-        
-        var selectedNextStepId = nextStepButtons.FirstOrDefault(x=>x.ActivityName==request.SelectedNextButtonName)?.ActivityId;
+
+        var selectedNextStepId = nextStepButtons.FirstOrDefault(x => x.ActivityName == request.SelectedNextButtonName)?.ActivityId;
 
 
-        //todo: prepare the config object which should be passed to the elsa
-        
-        await elsaClient.ReportTaskCompletedAsync(step.ExternalId, new(), cancellationToken);
+        var currentWorkflowconfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step.UserWorkflowConfigSerialized);
+        currentWorkflowconfig!.ActivityConfig.PossibleRequiredData = selectedNextStepId;
+
+        await elsaClient.ReportTaskCompletedAsync(step.ExternalId, currentWorkflowconfig, cancellationToken);
 
         step.IsCompleted = true;
         step.CompletedAt = DateTimeOffset.Now;

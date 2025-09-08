@@ -9,6 +9,16 @@ namespace ElsaServer.Activities
 {
     public class Step : RunTask
     {
+        public UserGroup performerGroup { get; set; } = null!;
+
+        public Guid PerformerUserId { get; set; }
+
+        public Dictionary<string, object> RequiredFieldValues { get; set; } = null!;
+
+        public string? Description { get; set; } = null;
+
+        public object? PossibleRequiredData { get; set; }
+
         public Step(
             Guid performerUserId,
             UserGroup activePerformerGroup,
@@ -38,18 +48,5 @@ namespace ElsaServer.Activities
         {
 
         }
-
-
-
-        public UserGroup performerGroup { get; set; } = null!;
-
-        public Guid PerformerUserId { get; set; }
-
-        public Dictionary<string, object> RequiredFieldValues { get; set; } = null!;
-
-        public string? Description { get; set; } = null;
-
-        public object? PossibleRequiredData { get; set; }
-
     }
 }
