@@ -1,14 +1,10 @@
-﻿using Elsa.Api.Client.Extensions;
-using Elsa.Extensions;
+﻿using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
-using Elsa.Workflows.Management.Activities.SetOutput;
 using Elsa.Workflows.Runtime.Activities;
 using ElsaServer.Activities;
-using ElsaServer.Models;
 using Rts.Common;
-using System.Text.Json;
 using Connection = Elsa.Workflows.Activities.Flowchart.Models.Connection;
 using Endpoint = Elsa.Workflows.Activities.Flowchart.Models.Endpoint;
 
@@ -191,21 +187,32 @@ namespace ElsaServer.Workflows
                             Port = "In"
                         }
                     },
-
-
-                    //new Connection
-                    //{
-                    //    Source = new Endpoint
-                    //    {
-                    //        Activity = approveByExpertOrPMDecision,
-                    //        Port = "Done"
-                    //    },
-                    //    Target = new Endpoint
-                    //    {
-                    //        Activity = endActivity,
-                    //        Port = "In"
-                    //    }
-                    //}
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByPM,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = endActivity,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByExpert,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = endActivity,
+                            Port = "In"
+                        }
+                    }
                 }
             };
 

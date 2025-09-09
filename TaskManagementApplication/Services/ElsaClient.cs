@@ -77,5 +77,15 @@ namespace TaskManagementApplication.Services
             return JsonSerializer.Serialize(result);
 
         }
+
+
+        public async Task<string> GetActivtyExecutionRecordsByWfInstanceIdAsync(string workflowInstanceId, CancellationToken cancellationToken)
+        {
+            var httpClient = httpClientFactory.CreateClient("elsaHttpClient");
+            var url = new Uri($"workflow-instances/{workflowInstanceId}/journal", UriKind.Relative);
+            //httpClient.DefaultRequestHeaders.Remove("Content-Type");
+            var elsaHttpResponse = await httpClient.GetFromJsonAsync<object>(url);
+            return JsonSerializer.Serialize(elsaHttpResponse);
+        }
     }
 }

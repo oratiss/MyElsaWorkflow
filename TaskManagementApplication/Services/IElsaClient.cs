@@ -11,5 +11,6 @@ namespace TaskManagementApplication.Services
 
         Task<string> GetWorkflowInstanceInformationAsync(string workflowInstanceId, CancellationToken cancellationToken = default);
         Task<string> GetWorkflowDefinitionInformationAsync(string? definitionId, CancellationToken cancellationToken = default);
+        Task<string> GetActivtyExecutionRecordsByWfInstanceIdAsync(string workflowInstanceId, CancellationToken cancellationToken = default);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace TaskManagementApplication.Services.Models.ElsaResponses
 {
-    public class ActivityInstanceInformation
+    public class WorkflowInstanceInformation
     {
         [JsonPropertyName("id")]
         public string? Id { get; set; }

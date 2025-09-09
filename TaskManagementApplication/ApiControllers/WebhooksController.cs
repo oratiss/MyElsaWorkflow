@@ -59,7 +59,6 @@ namespace TaskManagementApplication.ApiControllers
             var payload = stepWebhookEvent.Payload;
             var stepPayload = payload.TaskPayload;
 
-
             string concatenatedNextElsaActivities = await PrepareNextElsaActivitiesToBeSaved(payload);
 
             //todo: save task first
@@ -102,8 +101,10 @@ namespace TaskManagementApplication.ApiControllers
         private async Task<List<string?>?> FetchNextActivitiesFromElsa(string wfInstanceId)
         {
             var serializedActivityInstanceInfo = await elsaClient.GetWorkflowInstanceInformationAsync(wfInstanceId);
-            var activityInstanceInfo = JsonSerializer.Deserialize<ActivityInstanceInformation>(serializedActivityInstanceInfo);
-            var activityId = activityInstanceInfo!.WorkflowState!.Bookmarks!.OrderByDescending(bookmark => bookmark.CreatedAt).FirstOrDefault()!.ActivityId;
+            var activityInstanceInfo = JsonSerializer.Deserialize<WorkflowInstanceInformation>(serializedActivityInstanceInfo);
+            var activtyExecutionLogSerialized = await elsaClient.GetActivtyExecutionRecordsByWfInstanceIdAsync(wfInstanceId);
+            var activtyExecutionLog = JsonSerializer.Deserialize<WorkflowInstanceJournal>(activtyExecutionLogSerialized, serializerOptions);
+            var activityId = activtyExecutionLog!.Items!.OrderByDescending(x => x.Timestamp).FirstOrDefault()!.ActivityId;
 
             var serializedWorkflowDefInfo = await elsaClient.GetWorkflowDefinitionInformationAsync(activityInstanceInfo!.DefinitionId);
             var wfDefInfo = JsonSerializer.Deserialize<WorkflowDefinitionInformation>(serializedWorkflowDefInfo);
