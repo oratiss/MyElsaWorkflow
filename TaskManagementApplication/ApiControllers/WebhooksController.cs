@@ -16,6 +16,7 @@ namespace TaskManagementApplication.ApiControllers
     [ApiController]
     public class WebhooksController(TaskManagementDbContext dbContext, IElsaClient elsaClient) : ControllerBase
     {
+        private JsonSerializerOptions serializerOptions => new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
         [HttpPost("run-task")]
         public async Task<IActionResult> RunTask(WebhookEvent webhookEvent, CancellationToken cancellationToken = default)
@@ -107,15 +108,19 @@ namespace TaskManagementApplication.ApiControllers
             var serializedWorkflowDefInfo = await elsaClient.GetWorkflowDefinitionInformationAsync(activityInstanceInfo!.DefinitionId);
             var wfDefInfo = JsonSerializer.Deserialize<WorkflowDefinitionInformation>(serializedWorkflowDefInfo);
 
-            var activityInfos = wfDefInfo!.Root!.Activities.Adapt<List<ActivityInfo>>();
-
             var nextIfActivityId = wfDefInfo!.Root!.Connections!.FirstOrDefault(x => x.Source!.Activity == activityId)!.Target!.Activity;
             var nextActivities = wfDefInfo!.Root!.Connections!.Where(x => x.Source!.Activity == nextIfActivityId).Select(connection => connection.Target!.Activity).ToList();
 
+            var firstList = JsonSerializer.Deserialize<List<ActivityInfo>>(JsonSerializer.Serialize(wfDefInfo.Root.Activities, serializerOptions), serializerOptions);
+            var secondList = firstList!.Select(x =>
+            {
+                var a = x.Adapt<ActivityInfo>();
+                return new { a.Id, a.Name };
+            }).ToList();
             List<string?> result = new();
             foreach (var activity in nextActivities)
             {
-                var activityName = activityInfos.FirstOrDefault(x => x.Id == activity)?.Name;
+                var activityName = secondList.FirstOrDefault(x => x.Id == activity)?.Name;
                 if (activity == "end")
                 {
                     result.Add($"{activity}--{activity}");
@@ -127,5 +132,11 @@ namespace TaskManagementApplication.ApiControllers
             }
             return result;
         }
+    }
+
+    public class ACtiivtyBriefInfo
+    {
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 }

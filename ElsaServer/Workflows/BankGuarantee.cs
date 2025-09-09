@@ -21,13 +21,8 @@ namespace ElsaServer.Workflows
         {
 
             var userWorkflowConfig = builder.WithVariable<UserWorkflowConfig>();
-            var userWorkflowConfigDef = builder.WithInput<UserWorkflowConfig>("UserWorkflowConfig");
-
-            //Variable<BankGuaranteeState> workflowState = builder.WithVariable<BankGuaranteeState>();
 
             var previousRunTasKResultAsInput = builder.WithVariable<Dictionary<string, object>>();
-
-            //NextActivityTransistionType nextActivityTransistionType = NextActivityTransistionType.None;
 
             // Create activities with explicit IDs
             var startActivity = new Start
@@ -55,9 +50,7 @@ namespace ElsaServer.Workflows
             //      null,
             //      description: $"This step is for creating a \"Bank Guarantee document\""
             //  )
-            var stepActivity = new RunTask(
-                  "Create Bank Guarantee Document"
-              )
+            var createBankGuarantee= new RunTask("Create Bank Guarantee Document")
             {
                 Id = "createBankGuarantee",
                 Payload = new(context =>
@@ -71,12 +64,43 @@ namespace ElsaServer.Workflows
                 }),
             };
 
-            var setDecisionActivity = new TafahomDecision
+            var approveByExpertOrPMDecision = new TafahomDecision
             {
-                Id= "TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM",
+                Id = "TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM",
                 Name = "TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM"
-                
+
             };
+
+            var approveBankGuaranteeByExpert = new RunTask("Approve Bank Guarantee By Expert")
+            {
+                Id = "ApproveBankGuaranteeByExpert",
+                Name = "Approve Bank Guarantee By Expert",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Approve Bank Guarantee By Expert");
+                    return resultDict;
+                }),
+            };
+
+            var approveBankGuaranteeByPM = new RunTask("Approve Bank Guarantee By PM")
+            {
+                Id = "ApproveBankGuaranteeByPM",
+                Name = "Approve Bank Guarantee By PM",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Approve Bank Guarantee By PM");
+                    return resultDict;
+                }),
+            };
+
 
             var endActivity = new End
             {
@@ -90,8 +114,10 @@ namespace ElsaServer.Workflows
                 {
                     startActivity,
                     setConfigActivity,
-                    stepActivity,
-                    setDecisionActivity,
+                    createBankGuarantee,
+                    approveByExpertOrPMDecision,
+                    approveBankGuaranteeByExpert,
+                    approveBankGuaranteeByPM,
                     endActivity
                 },
 
@@ -111,7 +137,7 @@ namespace ElsaServer.Workflows
                             Port = "In"
                         }
                     },
-                    // Connect SetConfig to Step
+                    // Connect SetConfig to createBankGuarantee
                     new Connection
                     {
                         Source = new Endpoint
@@ -121,39 +147,65 @@ namespace ElsaServer.Workflows
                         },
                         Target = new Endpoint
                         {
-                            Activity = stepActivity,
+                            Activity = createBankGuarantee,
                             Port = "In"
                         }
                     },
                     // Connect Step to SetResult
-                    new Connection(stepActivity, setDecisionActivity),
-                    //new Connection
-                    //{
-                    //    Source = new Endpoint
-                    //    {
-                    //        Activity = stepActivity,
-                    //        Port = "Done"
-                    //    },
-                    //    Target = new Endpoint
-                    //    {
-                    //        Activity = setDecisionActivity,
-                    //        Port = "In"
-                    //    }
-                    //},
-                    // Connect SetResult to End
                     new Connection
                     {
                         Source = new Endpoint
                         {
-                            Activity = setDecisionActivity,
+                            Activity = createBankGuarantee,
                             Port = "Done"
                         },
                         Target = new Endpoint
                         {
-                            Activity = endActivity,
+                            Activity = approveByExpertOrPMDecision,
                             Port = "In"
                         }
-                    }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = approveByExpertOrPMDecision,
+                            Port = "Expert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = approveByExpertOrPMDecision,
+                            Port = "PM"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByPM,
+                            Port = "In"
+                        }
+                    },
+
+
+                    //new Connection
+                    //{
+                    //    Source = new Endpoint
+                    //    {
+                    //        Activity = approveByExpertOrPMDecision,
+                    //        Port = "Done"
+                    //    },
+                    //    Target = new Endpoint
+                    //    {
+                    //        Activity = endActivity,
+                    //        Port = "In"
+                    //    }
+                    //}
                 }
             };
 
