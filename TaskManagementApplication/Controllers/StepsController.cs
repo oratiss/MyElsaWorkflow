@@ -388,9 +388,6 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
 
         var selectedNextStepId = nextStepButtons.FirstOrDefault(x => x.ActivityName == request.SelectedNextButtonName)?.ActivityId;
 
-
-
-
         var currentWorkflowconfig = JsonSerializer.Deserialize<UserWorkflowConfig>(step.UserWorkflowConfigSerialized);
         currentWorkflowconfig!.ActivityConfig.PossibleRequiredData = selectedNextStepId;
 
@@ -653,24 +650,6 @@ public class StepsController(TaskManagementDbContext dbContext, IElsaClient elsa
         model.Fields.Add(performerGroup);
     }
 
-    private async Task<string?> FetchSelectdOutcome(string wfInstanceId, string activityId, CancellationToken cancellationToken = default)
-    {
-        var serializedActivityInstanceInfo = await elsaClient.GetWorkflowInstanceInformationAsync(wfInstanceId);
-        var activityInstanceInfo = JsonSerializer.Deserialize<WorkflowInstanceInformation>(serializedActivityInstanceInfo, Options);
-        var bookmarkedActivityId = activityInstanceInfo!.WorkflowState!.Bookmarks!.OrderByDescending(bookmark => bookmark.CreatedAt).FirstOrDefault()!.ActivityId;
-
-        var serializedWorkflowDefInfo = await elsaClient.GetWorkflowDefinitionInformationAsync(activityInstanceInfo!.DefinitionId);
-        var wfDefInfo = JsonSerializer.Deserialize<WorkflowDefinitionInformation>(serializedWorkflowDefInfo, Options);
-
-        var targetConnection = wfDefInfo!.Root!.Connections!
-            .FirstOrDefault(x => x.Source!.Activity == bookmarkedActivityId
-            && !string.IsNullOrWhiteSpace(x.Source.Port)
-            && x.Source.Activity!.ToLower()== activityId.ToLower()
-            )!;
-
-
-        return targetConnection.Source!.Port;
-    }
 
 }
 

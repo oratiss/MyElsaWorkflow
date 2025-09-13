@@ -1,14 +1,6 @@
-﻿using Elsa.Expressions.Models;
-using Elsa.Workflows.Management.Entities;
-using Elsa.Workflows.Management.Models;
-using FastEndpoints;
-using Rts.Common;
-using System;
-using System.Net.Http;
+﻿using Rts.Common;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using TaskManagementApplication.Services.Models;
 
 namespace TaskManagementApplication.Services
@@ -77,8 +69,6 @@ namespace TaskManagementApplication.Services
             return JsonSerializer.Serialize(result);
 
         }
-
-
         public async Task<string> GetActivtyExecutionRecordsByWfInstanceIdAsync(string workflowInstanceId, CancellationToken cancellationToken)
         {
             var httpClient = httpClientFactory.CreateClient("elsaHttpClient");
