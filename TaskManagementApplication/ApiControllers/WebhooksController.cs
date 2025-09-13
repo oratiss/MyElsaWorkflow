@@ -110,7 +110,15 @@ namespace TaskManagementApplication.ApiControllers
             var wfDefInfo = JsonSerializer.Deserialize<WorkflowDefinitionInformation>(serializedWorkflowDefInfo);
 
             var nextIfActivityId = wfDefInfo!.Root!.Connections!.FirstOrDefault(x => x.Source!.Activity == activityId)!.Target!.Activity;
-            var nextActivities = wfDefInfo!.Root!.Connections!.Where(x => x.Source!.Activity == nextIfActivityId).Select(connection => connection.Target!.Activity).ToList();
+            List<string?>? nextActivities = new();
+            if (nextIfActivityId == "end")
+            {
+                nextActivities.Add("end");
+            }
+            else
+            {
+                nextActivities = wfDefInfo!.Root!.Connections!.Where(x => x.Source!.Activity == nextIfActivityId).Select(connection => connection.Target!.Activity).ToList();
+            }
 
             var firstList = JsonSerializer.Deserialize<List<ActivityInfo>>(JsonSerializer.Serialize(wfDefInfo.Root.Activities, serializerOptions), serializerOptions);
             var secondList = firstList!.Select(x =>
