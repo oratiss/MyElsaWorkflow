@@ -46,7 +46,7 @@ namespace ElsaServer.Workflows
             //      null,
             //      description: $"This step is for creating a \"Bank Guarantee document\""
             //  )
-            var createBankGuarantee= new RunTask("Create Bank Guarantee Document")
+            var createBankGuarantee = new RunTask("Create Bank Guarantee Document")
             {
                 Id = "createBankGuarantee",
                 Payload = new(context =>
@@ -82,6 +82,27 @@ namespace ElsaServer.Workflows
                 }),
             };
 
+            var approveByAnotherExpertOrPMDecision = new TafahomDecision
+            {
+                Id = "TafahomDecision-BankGuarantee-02-AnotherExpertsOrPM",
+                Name = "TafahomDecision-BankGuarantee-02-AnotherExpertsOrPM"
+            };
+
+            var approveBankGuaranteeByAnotherExpert = new RunTask("Approve Bank Guarantee By Another Expert")
+            {
+                Id = "ApproveBankGuaranteeByAnotherExpert",
+                Name = "Approve Bank Guarantee By Another Expert",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Approve Bank Guarantee By Another Expert");
+                    return resultDict;
+                }),
+            };
+
             var approveBankGuaranteeByPM = new RunTask("Approve Bank Guarantee By PM")
             {
                 Id = "ApproveBankGuaranteeByPM",
@@ -97,6 +118,110 @@ namespace ElsaServer.Workflows
                 }),
             };
 
+            var projectManagerDecision = new TafahomDecision
+            {
+                Id = "TafahomDecision-BankGuarantee-03-projectManagerDecision",
+                Name = "TafahomDecision-BankGuarantee-03-projectManagerDecision"
+            };
+
+            var approveBankGuaranteeByLegalAndContractAffairsManager = new RunTask("Approve Bank Guarantee By Legal And Contract Affairs Manager")
+            {
+                Id = "ApproveBankGuaranteeByLegalAndContractAffairsManager",
+                Name = "Approve Bank Guarantee By Legal And Contract Affairs Manager",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Approve Bank Guarantee By Legal And Contract Affairs Manager");
+                    return resultDict;
+                }),
+            };
+
+            var legalAndContractAffairsManagerDecision = new TafahomDecision
+            {
+                Id = "TafahomDecision-BankGuarantee-04-LegalAndContractAffairsManagerDecision",
+                Name = "TafahomDecision-BankGuarantee-04-LegalAndContractAffairsManagerDecision"
+            };
+
+            var approveBankGuaranteeByLegalAndContractAffairsExpert = new RunTask("Approve Bank Guarantee By LegalAndContractAffairs Expert")
+            {
+                Id = "ApproveBankGuaranteeByLegalAndContractAffairsExpert",
+                Name = "Approve Bank Guarantee By LegalAndContractAffairs Expert",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Approve Bank Guarantee By LegalAndContractAffairs Expert");
+                    return resultDict;
+                }),
+            };
+
+            var reviewBankGuaranteeByFinancialManager = new RunTask("Review Bank Guarantee By Financial Manager")
+            {
+                Id = "ReviewBankGuaranteeByFinancialManager",
+                Name = "Review Bank Guarantee By Financial Manager",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Review Bank Guarantee By Financial Manager");
+                    return resultDict;
+                }),
+            };
+
+            var fiancialManagerDecision = new TafahomDecision
+            {
+                Id = "TafahomDecision-BankGuarantee-05-FinancialManagerDecision",
+                Name = "TafahomDecision-BankGuarantee-05-FinancialManagerDecision"
+            };
+
+            var reviewBankGuaranteeByFinancialExpert = new RunTask("Review Bank Guarantee By Financial Expert")
+            {
+                Id = "ReviewBankGuaranteeByFinancialExpert",
+                Name = "Review Bank Guarantee By Financial Expert",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Review Bank Guarantee By Financial Expert");
+                    return resultDict;
+                }),
+            };
+
+            var financialExpertDecision = new TafahomDecision
+            {
+                Id = "TafahomDecision-BankGuarantee-06-FinancialExpertDecision",
+                Name = "TafahomDecision-BankGuarantee-06-FinancialExpertDecision"
+            };
+
+            var deliverBankGuarantee = new RunTask("Deliver Bank Guarantee")
+            {
+                Id = "DeliverBankGuarantee",
+                Name = "Deliver Bank Guarantee",
+                Payload = new(context =>
+                {
+                    var resultDict = new Dictionary<string, object>();
+
+                    var wfConfig = userWorkflowConfig.Get(context)!;
+                    resultDict.Add("UserWorkflowConfig", wfConfig);
+                    resultDict.Add("Description", "Deliver Bank Guarantee");
+                    return resultDict;
+                }),
+            };
+
+            var lastDecision = new TafahomDecision
+            {
+                Id = "TafahomDecision-BankGuarantee-07-LastDecision",
+                Name = "TafahomDecision-BankGuarantee-07-LastDecision"
+            };
 
             var endActivity = new End
             {
@@ -111,9 +236,21 @@ namespace ElsaServer.Workflows
                     startActivity,
                     setConfigActivity,
                     createBankGuarantee,
-                    approveByExpertOrPMDecision,
+                    approveByExpertOrPMDecision, //decsion
                     approveBankGuaranteeByExpert,
                     approveBankGuaranteeByPM,
+                    approveByAnotherExpertOrPMDecision, //decsion
+                    approveBankGuaranteeByAnotherExpert,
+                    projectManagerDecision, //decsion
+                    approveBankGuaranteeByLegalAndContractAffairsManager,
+                    reviewBankGuaranteeByFinancialManager,
+                    legalAndContractAffairsManagerDecision, //decsion
+                    approveBankGuaranteeByLegalAndContractAffairsExpert,
+                    fiancialManagerDecision, //decsion
+                    reviewBankGuaranteeByFinancialExpert,
+                    financialExpertDecision, //decsion
+                    deliverBankGuarantee,
+                    lastDecision, //decsion
                     endActivity
                 },
 
@@ -189,14 +326,53 @@ namespace ElsaServer.Workflows
                     },
                     new Connection
                     {
-                        Source = new Endpoint
+                        Source= new Endpoint
                         {
-                            Activity = approveBankGuaranteeByPM,
+                            Activity = approveBankGuaranteeByExpert,
                             Port = "Done"
                         },
                         Target = new Endpoint
                         {
-                            Activity = endActivity,
+                            Activity = approveByAnotherExpertOrPMDecision,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source= new Endpoint
+                        {
+                            Activity = approveByAnotherExpertOrPMDecision,
+                            Port = "AnotherExpert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByAnotherExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source= new Endpoint
+                        {
+                            Activity = approveByAnotherExpertOrPMDecision                                                                                                                                    ,
+                            Port = "ProjectManager"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByPM,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source= new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByAnotherExpert,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByExpert,
                             Port = "In"
                         }
                     },
@@ -204,8 +380,242 @@ namespace ElsaServer.Workflows
                     {
                         Source = new Endpoint
                         {
-                            Activity = approveBankGuaranteeByExpert,
+                            Activity = approveBankGuaranteeByPM,
                             Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = projectManagerDecision,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = projectManagerDecision,
+                            Port = "RejectAndRetrunToExpert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = projectManagerDecision,
+                            Port = "LegalAndContractManager"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsManager,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = projectManagerDecision,
+                            Port = "FinancialManager"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialManager,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsManager,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = legalAndContractAffairsManagerDecision,
+                            Port = "In"
+                        },
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = legalAndContractAffairsManagerDecision,
+                            Port = "RejectToPM"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByPM,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = legalAndContractAffairsManagerDecision,
+                            Port = "legalAndContractAffairsExpert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = legalAndContractAffairsManagerDecision,
+                            Port = "FinancialManager"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialManager,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsExpert,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsManager,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialManager,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = fiancialManagerDecision,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = fiancialManagerDecision,
+                            Port = "ReviewByFianncialExpert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = fiancialManagerDecision,
+                            Port = "RejectToLegalManager"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsManager,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = fiancialManagerDecision,
+                            Port = "RejectToPM"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByPM,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialExpert,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = financialExpertDecision,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = financialExpertDecision,
+                            Port = "ProceededToDelivery"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = deliverBankGuarantee,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = financialExpertDecision,
+                            Port = "ReviewByFianncialExpert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialManager,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = deliverBankGuarantee,
+                            Port = "Done"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = lastDecision,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = lastDecision,
+                            Port = "RejectToFinancialExpert"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = reviewBankGuaranteeByFinancialExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = lastDecision,
+                            Port = "ProceededToEnd"
                         },
                         Target = new Endpoint
                         {
@@ -213,6 +623,9 @@ namespace ElsaServer.Workflows
                             Port = "In"
                         }
                     }
+
+                    
+
                 }
             };
 
