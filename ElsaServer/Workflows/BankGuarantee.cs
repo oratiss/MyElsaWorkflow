@@ -225,8 +225,8 @@ namespace ElsaServer.Workflows
 
             var endActivity = new End
             {
-                Id = "end",
-                Name = "end"
+                Id = "End",
+                Name = "End"
             };
 
             builder.Root = new Flowchart
@@ -394,7 +394,7 @@ namespace ElsaServer.Workflows
                         Source = new Endpoint
                         {
                             Activity = projectManagerDecision,
-                            Port = "RejectAndRetrunToExpert"
+                            Port = "BackToExpert"
                         },
                         Target = new Endpoint
                         {
@@ -576,7 +576,7 @@ namespace ElsaServer.Workflows
                         Source = new Endpoint
                         {
                             Activity = financialExpertDecision,
-                            Port = "ReviewByFianncialExpert"
+                            Port = "ReviewByFianncialManager"
                         },
                         Target = new Endpoint
                         {

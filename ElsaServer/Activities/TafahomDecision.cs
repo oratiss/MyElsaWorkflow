@@ -63,8 +63,8 @@ namespace ElsaServer.Activities
                                 await context.CompleteActivityWithOutcomesAsync("FinancialManager");
                                 break;
 
-                            case "RejectAndRetrunToExpert":
-                                await context.CompleteActivityWithOutcomesAsync("RejectAndReturnToExpert");
+                            case "ApproveBankGuaranteeByExpert":
+                                await context.CompleteActivityWithOutcomesAsync("BackToExpert");
                                 break;
 
                         }
@@ -82,7 +82,7 @@ namespace ElsaServer.Activities
                                 await context.CompleteActivityWithOutcomesAsync("FinancialManager");
                                 break;
 
-                            case "RejectToBankGuaranteePM":
+                            case "ApproveBankGuaranteeByPM":
                                 await context.CompleteActivityWithOutcomesAsync("RejectToPM");
                                 break;
                         }
@@ -96,11 +96,11 @@ namespace ElsaServer.Activities
                                 await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialExpert");
                                 break;
 
-                            case "RejectToLegalAndContractsManager":
+                            case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
                                 await context.CompleteActivityWithOutcomesAsync("RejectToLegalManager");
                                 break;
 
-                            case "RejectToBankGuaranteePM":
+                            case "ApproveBankGuaranteeByPM":
                                 await context.CompleteActivityWithOutcomesAsync("RejectToPM");
                                 break;
                         }
@@ -111,10 +111,10 @@ namespace ElsaServer.Activities
                         switch (outcome)
                         {
                             case "ReviewBankGuaranteeByFianncialManager":
-                                await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialExpert");
+                                await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialManager");
                                 break;
 
-                            case "ApprovedAndProceededToDelivery":
+                            case "DeliverBankGuarantee":
                                 await context.CompleteActivityWithOutcomesAsync("ProceededToDelivery");
                                 break;
                         }
@@ -124,11 +124,11 @@ namespace ElsaServer.Activities
                     {
                         switch (outcome)
                         {
-                            case "RejectToFinancialExpert":
+                            case "ReviewBankGuaranteeByFianncialExpert":
                                 await context.CompleteActivityWithOutcomesAsync("RejectToFinancialExpert");
                                 break;
 
-                            case "ProceedToEnd":
+                            case "End":
                                 await context.CompleteActivityWithOutcomesAsync("ProceededToEnd");
                                 break;
                         }
