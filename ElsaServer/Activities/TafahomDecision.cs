@@ -7,7 +7,9 @@ using System.Text.Json;
 
 namespace ElsaServer.Activities
 {
-    [FlowNode("Expert", "PM")]
+    [FlowNode("Expert", "PM", "AnotherExpert", "ProjectManager", "LegalAndContractManager", 
+        "FinancialManager", "BackToExpert", "LegalAndContractAffairsExpert", "RejectToPM", "ReviewByFianncialExpert",
+        "RejectToLegalManager", "ReviewByFianncialManager", "ProceededToDelivery", "RejectToFinancialExpert", "ProceededToEnd")]
     public class TafahomDecision : Activity
     {
         private JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
@@ -59,11 +61,11 @@ namespace ElsaServer.Activities
                                 await context.CompleteActivityWithOutcomesAsync("LegalAndContractManager");
                                 break;
 
-                            case "ReviewBankGuaranteeByFinanicialManager":
+                            case "ReviewBankGuaranteeByFinancialManager":
                                 await context.CompleteActivityWithOutcomesAsync("FinancialManager");
                                 break;
 
-                            case "ApproveBankGuaranteeByExpert":
+                            case "CreateBankGuarantee":
                                 await context.CompleteActivityWithOutcomesAsync("BackToExpert");
                                 break;
 
@@ -78,7 +80,7 @@ namespace ElsaServer.Activities
                                 await context.CompleteActivityWithOutcomesAsync("LegalAndContractAffairsExpert");
                                 break;
 
-                            case "RevieweBankGuaranteeByFinancialManager":
+                            case "ReviewBankGuaranteeByFinancialManager":
                                 await context.CompleteActivityWithOutcomesAsync("FinancialManager");
                                 break;
 
@@ -92,12 +94,8 @@ namespace ElsaServer.Activities
                     {
                         switch (outcome)
                         {
-                            case "ReviewBankGuaranteeByFianncialExpert":
+                            case "ReviewBankGuaranteeByFinancialExpert":
                                 await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialExpert");
-                                break;
-
-                            case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
-                                await context.CompleteActivityWithOutcomesAsync("RejectToLegalManager");
                                 break;
 
                             case "ApproveBankGuaranteeByPM":
@@ -110,7 +108,7 @@ namespace ElsaServer.Activities
                     {
                         switch (outcome)
                         {
-                            case "ReviewBankGuaranteeByFianncialManager":
+                            case "ReviewBankGuaranteeByFinancialManager":
                                 await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialManager");
                                 break;
 
@@ -124,7 +122,7 @@ namespace ElsaServer.Activities
                     {
                         switch (outcome)
                         {
-                            case "ReviewBankGuaranteeByFianncialExpert":
+                            case "ReviewBankGuaranteeByFinancialExpert":
                                 await context.CompleteActivityWithOutcomesAsync("RejectToFinancialExpert");
                                 break;
 

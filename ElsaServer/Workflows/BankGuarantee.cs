@@ -48,7 +48,8 @@ namespace ElsaServer.Workflows
             //  )
             var createBankGuarantee = new RunTask("Create Bank Guarantee Document")
             {
-                Id = "createBankGuarantee",
+                Id = "CreateBankGuarantee",
+                Name = "Create Bank Guarantee",
                 Payload = new(context =>
                 {
                     var resultDict = new Dictionary<string, object>();
@@ -398,7 +399,7 @@ namespace ElsaServer.Workflows
                         },
                         Target = new Endpoint
                         {
-                            Activity = approveBankGuaranteeByExpert,
+                            Activity = createBankGuarantee,
                             Port = "In"
                         }
                     },
@@ -459,7 +460,7 @@ namespace ElsaServer.Workflows
                         Source = new Endpoint
                         {
                             Activity = legalAndContractAffairsManagerDecision,
-                            Port = "legalAndContractAffairsExpert"
+                            Port = "LegalAndContractAffairsExpert"
                         },
                         Target = new Endpoint
                         {
@@ -516,19 +517,6 @@ namespace ElsaServer.Workflows
                         Target = new Endpoint
                         {
                             Activity = reviewBankGuaranteeByFinancialExpert,
-                            Port = "In"
-                        }
-                    },
-                    new Connection
-                    {
-                        Source = new Endpoint
-                        {
-                            Activity = fiancialManagerDecision,
-                            Port = "RejectToLegalManager"
-                        },
-                        Target = new Endpoint
-                        {
-                            Activity = approveBankGuaranteeByLegalAndContractAffairsManager,
                             Port = "In"
                         }
                     },
