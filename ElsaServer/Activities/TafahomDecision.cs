@@ -1,5 +1,6 @@
 ﻿using Elsa.Extensions;
 using Elsa.Workflows;
+using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Activities.Flowchart.Attributes;
 using Microsoft.Net.Http.Headers;
 using Rts.Common;
@@ -7,7 +8,7 @@ using System.Text.Json;
 
 namespace ElsaServer.Activities
 {
-    [FlowNode("Expert", "PM", "AnotherExpert", "ProjectManager", "LegalAndContractManager", 
+    [FlowNode("Expert", "PM", "AnotherExpert", "ProjectManager", "LegalAndContractManager",
         "FinancialManager", "BackToExpert", "LegalAndContractAffairsExpert", "RejectToPM", "ReviewByFianncialExpert",
         "RejectToLegalManager", "ReviewByFianncialManager", "ProceededToDelivery", "RejectToFinancialExpert", "ProceededToEnd")]
     public class TafahomDecision : Activity
@@ -21,123 +22,131 @@ namespace ElsaServer.Activities
             var wfConfigVariable = context.SetVariable("userWorkflowConfig", wfConfig);
             var outcome = Convert.ToString(wfConfig!.ActivityConfig.PossibleRequiredData!)!;
 
-            switch (this.Id)
+            try
             {
-                case ("TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM"):
-                    {
-                        switch (outcome)
+                switch (this.Id)
+                {
+                    case ("TafahomDecision-BankGuarantee-01-Creation-ExpertsOrPM"):
                         {
-                            case "ApproveBankGuaranteeByExpert":
-                            default:
-                                await context.CompleteActivityWithOutcomesAsync("Expert");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ApproveBankGuaranteeByExpert":
+                                default:
+                                    await context.CompleteActivityWithOutcomesAsync("Expert");
+                                    break;
 
-                            case "ApproveBankGuaranteeByPM":
-                                await context.CompleteActivityWithOutcomesAsync("PM");
-                                break;
+                                case "ApproveBankGuaranteeByPM":
+                                    await context.CompleteActivityWithOutcomesAsync("PM");
+                                    break;
+                            }
+                            ;
+                            break;
                         }
-                        ;
-                        break;
-                    }
-                case ("TafahomDecision-BankGuarantee-02-AnotherExpertsOrPM"):
-                    {
-                        switch (outcome)
+                    case ("TafahomDecision-BankGuarantee-02-AnotherExpertsOrPM"):
                         {
-                            case "ApproveBankGuaranteeByAnotherExpert":
-                                await context.CompleteActivityWithOutcomesAsync("AnotherExpert");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ApproveBankGuaranteeByAnotherExpert":
+                                    await context.CompleteActivityWithOutcomesAsync("AnotherExpert");
+                                    break;
 
-                            case "ApproveBankGuaranteeByPM":
-                                await context.CompleteActivityWithOutcomesAsync("ProjectManager");
-                                break;
+                                case "ApproveBankGuaranteeByPM":
+                                    await context.CompleteActivityWithOutcomesAsync("ProjectManager");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case ("TafahomDecision-BankGuarantee-03-projectManagerDecision"):
-                    {
-                        switch (outcome)
+                    case ("TafahomDecision-BankGuarantee-03-projectManagerDecision"):
                         {
-                            case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
-                                await context.CompleteActivityWithOutcomesAsync("LegalAndContractManager");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
+                                    await context.CompleteActivityWithOutcomesAsync("LegalAndContractManager");
+                                    break;
 
-                            case "ReviewBankGuaranteeByFinancialManager":
-                                await context.CompleteActivityWithOutcomesAsync("FinancialManager");
-                                break;
+                                case "ReviewBankGuaranteeByFinancialManager":
+                                    await context.CompleteActivityWithOutcomesAsync("FinancialManager");
+                                    break;
 
-                            case "CreateBankGuarantee":
-                                await context.CompleteActivityWithOutcomesAsync("BackToExpert");
-                                break;
+                                case "ApproveBankGuaranteeByExpert":
+                                    await context.CompleteActivityWithOutcomesAsync("BackToExpert");
+                                    break;
 
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case ("TafahomDecision-BankGuarantee-04-LegalAndContractAffairsManagerDecision"):
-                    {
-                        switch (outcome)
+                    case ("TafahomDecision-BankGuarantee-04-LegalAndContractAffairsManagerDecision"):
                         {
-                            case "ApproveBankGuaranteeByLegalAndContractAffairsExpert":
-                                await context.CompleteActivityWithOutcomesAsync("LegalAndContractAffairsExpert");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ApproveBankGuaranteeByLegalAndContractAffairsExpert":
+                                    await context.CompleteActivityWithOutcomesAsync("LegalAndContractAffairsExpert");
+                                    break;
 
-                            case "ReviewBankGuaranteeByFinancialManager":
-                                await context.CompleteActivityWithOutcomesAsync("FinancialManager");
-                                break;
+                                case "ReviewBankGuaranteeByFinancialManager":
+                                    await context.CompleteActivityWithOutcomesAsync("FinancialManager");
+                                    break;
 
-                            case "ApproveBankGuaranteeByPM":
-                                await context.CompleteActivityWithOutcomesAsync("RejectToPM");
-                                break;
+                                case "ApproveBankGuaranteeByPM":
+                                    await context.CompleteActivityWithOutcomesAsync("RejectToPM");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case ("TafahomDecision-BankGuarantee-05-FinancialManagerDecision"):
-                    {
-                        switch (outcome)
+                    case ("TafahomDecision-BankGuarantee-05-FinancialManagerDecision"):
                         {
-                            case "ReviewBankGuaranteeByFinancialExpert":
-                                await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialExpert");
-                                break;
-                            case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
-                                await context.CompleteActivityWithOutcomesAsync("RejectToLegalManager");
-                                break;
-                            case "ApproveBankGuaranteeByPM":
-                                await context.CompleteActivityWithOutcomesAsync("RejectToPM");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ReviewBankGuaranteeByFinancialExpert":
+                                    await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialExpert");
+                                    break;
+                                case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
+                                    await context.CompleteActivityWithOutcomesAsync("RejectToLegalManager");
+                                    break;
+                                case "ApproveBankGuaranteeByPM":
+                                    await context.CompleteActivityWithOutcomesAsync("RejectToPM");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case ("TafahomDecision-BankGuarantee-06-FinancialExpertDecision"):
-                    {
-                        switch (outcome)
+                    case ("TafahomDecision-BankGuarantee-06-FinancialExpertDecision"):
                         {
-                            case "ReviewBankGuaranteeByFinancialManager":
-                                await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialManager");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ReviewBankGuaranteeByFinancialManager":
+                                    await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialManager");
+                                    break;
 
-                            case "DeliverBankGuarantee":
-                                await context.CompleteActivityWithOutcomesAsync("ProceededToDelivery");
-                                break;
+                                case "DeliverBankGuarantee":
+                                    await context.CompleteActivityWithOutcomesAsync("ProceededToDelivery");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case ("TafahomDecision-BankGuarantee-07-LastDecision"):
-                    {
-                        switch (outcome)
+                    case ("TafahomDecision-BankGuarantee-07-LastDecision"):
                         {
-                            case "ReviewBankGuaranteeByFinancialExpert":
-                                await context.CompleteActivityWithOutcomesAsync("RejectToFinancialExpert");
-                                break;
+                            switch (outcome)
+                            {
+                                case "ReviewBankGuaranteeByFinancialExpert":
+                                    await context.CompleteActivityWithOutcomesAsync("RejectToFinancialExpert");
+                                    break;
 
-                            case "End":
-                                await context.CompleteActivityWithOutcomesAsync("ProceededToEnd");
-                                break;
+                                case "End":
+                                    await context.CompleteActivityWithOutcomesAsync("ProceededToEnd");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                default:
-                    {
-                        throw new Exception("Activity Name is out of range for decisions.");
-                    }
+                    default:
+                        {
+                            throw new Exception("Activity Name is out of range for decisions.");
+                        }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
             }
 
 

@@ -4,6 +4,7 @@ using Elsa.EntityFrameworkCore.Modules.Runtime;
 using Elsa.Extensions;
 using Elsa.Workflows.Management;
 using Elsa.Workflows.Runtime;
+using Elsa.Workflows.Runtime.Options;
 using ElsaServer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -139,7 +140,9 @@ services
     .UseWebhooks(webhooks => webhooks.ConfigureSinks += options => builder.Configuration.GetSection("webhooks").Bind(options))
     );
 
+
 services.Replace(ServiceDescriptor.Scoped<IWorkflowValidator, PermissiveWorkflowValidator>());
+
 
 services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("*")));
 services.AddRazorPages(options => options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute()));
