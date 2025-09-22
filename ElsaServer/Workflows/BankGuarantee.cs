@@ -399,7 +399,7 @@ namespace ElsaServer.Workflows
                         },
                         Target = new Endpoint
                         {
-                            Activity = createBankGuarantee,
+                            Activity = approveBankGuaranteeByExpert,
                             Port = "In"
                         }
                     },
@@ -517,6 +517,19 @@ namespace ElsaServer.Workflows
                         Target = new Endpoint
                         {
                             Activity = reviewBankGuaranteeByFinancialExpert,
+                            Port = "In"
+                        }
+                    },
+                    new Connection
+                    {
+                        Source = new Endpoint
+                        {
+                            Activity = fiancialManagerDecision,
+                            Port = "RejectToLegalManager"
+                        },
+                        Target = new Endpoint
+                        {
+                            Activity = approveBankGuaranteeByLegalAndContractAffairsManager,
                             Port = "In"
                         }
                     },

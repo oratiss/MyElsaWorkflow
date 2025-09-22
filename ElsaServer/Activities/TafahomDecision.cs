@@ -97,7 +97,9 @@ namespace ElsaServer.Activities
                             case "ReviewBankGuaranteeByFinancialExpert":
                                 await context.CompleteActivityWithOutcomesAsync("ReviewByFianncialExpert");
                                 break;
-
+                            case "ApproveBankGuaranteeByLegalAndContractAffairsManager":
+                                await context.CompleteActivityWithOutcomesAsync("RejectToLegalManager");
+                                break;
                             case "ApproveBankGuaranteeByPM":
                                 await context.CompleteActivityWithOutcomesAsync("RejectToPM");
                                 break;
